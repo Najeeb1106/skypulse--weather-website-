@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>SkyPulse — Radar & Maps</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --bg:#020a14;--panel:rgba(4,12,26,0.92);--border:rgba(0,212,255,0.12);
+  --cyan:#00d4ff;--ice:#7ee8fa;--gold:#ffd166;--storm:#ff6b35;--green:#6ddc8b;
+  --text:#e8f4ff;--muted:#4a6a8a;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);height:100vh;overflow:hidden;}
+
+/* Full-screen map canvas */
+.map-canvas{position:fixed;inset:0;z-index:0;}
+#worldMap{width:100%;height:100%;}
+
+/* Top nav */
+nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:16px 24px;background:linear-gradient(180deg,rgba(2,10,20,0.95) 0%,transparent 100%);pointer-events:all;}
+.logo{font-family:'Syne',sans-serif;font-weight:800;font-size:1.2rem;letter-spacing:-0.02em;display:flex;align-items:center;gap:8px;text-decoration:none;color:var(--text);}
+.logo-dot{width:26px;height:26px;background:linear-gradient(135deg,var(--cyan),#006fff);border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:14px;}
+.logo span{color:var(--cyan);}
+.nav-center{display:flex;align-items:center;gap:8px;background:rgba(0,0,0,0.5);border:1px solid var(--border);border-radius:12px;padding:8px 12px;backdrop-filter:blur(20px);}
+.nav-center span{font-family:'DM Mono',monospace;font-size:0.75rem;color:var(--cyan);}
+.live-ind{display:flex;align-items:center;gap:6px;font-size:0.72rem;color:var(--green);font-family:'DM Mono',monospace;}
+.live-dot{width:6px;height:6px;background:var(--green);border-radius:50%;animation:pulse 1.5s infinite;}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(109,220,139,0.5);}50%{box-shadow:0 0 0 5px rgba(109,220,139,0);}}
+.nav-right{display:flex;align-items:center;gap:10px;}
+.nav-icon-btn{background:rgba(0,0,0,0.4);border:1px solid var(--border);color:var(--text);font-size:0.8rem;padding:8px 14px;border-radius:10px;cursor:pointer;transition:all .2s;backdrop-filter:blur(12px);}
+.nav-icon-btn:hover,.nav-icon-btn.active{background:rgba(0,212,255,0.12);border-color:rgba(0,212,255,0.4);}
+
+/* Left panel — Layers */
+.layers-panel{position:fixed;top:80px;left:20px;z-index:50;width:220px;background:var(--panel);border:1px solid var(--border);border-radius:18px;padding:20px;backdrop-filter:blur(24px);animation:slideInLeft .5s cubic-bezier(.16,1,.3,1) both;}
+@keyframes slideInLeft{from{opacity:0;transform:translateX(-20px);}to{opacity:1;transform:translateX(0);}}
+.panel-title{font-family:'Syne',sans-serif;font-size:0.7rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-bottom:14px;}
+.layer-btn{display:flex;align-items:center;gap:10px;width:100%;padding:10px 12px;border-radius:10px;border:1px solid transparent;background:transparent;color:var(--muted);font-family:'DM Sans',sans-serif;font-size:0.82rem;cursor:pointer;transition:all .2s;margin-bottom:4px;text-align:left;}
+.layer-btn:hover{background:rgba(255,255,255,0.04);color:var(--text);}
+.layer-btn.active{background:rgba(0,212,255,0.1);border-color:rgba(0,212,255,0.3);color:var(--cyan);}
+.layer-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+.layer-icon{font-size:1rem;min-width:20px;}
+
+/* Right panel — Controls */
+.controls-panel{position:fixed;top:80px;right:20px;z-index:50;width:200px;background:var(--panel);border:1px solid var(--border);border-radius:18px;padding:20px;backdrop-filter:blur(24px);animation:slideInRight .5s cubic-bezier(.16,1,.3,1) both;}
+@keyframes slideInRight{from{opacity:0;transform:translateX(20px);}to{opacity:1;transform:translateX(0);}}
+.zoom-btns{display:flex;gap:6px;margin-bottom:16px;}
+.zoom-btn{flex:1;background:rgba(255,255,255,0.05);border:1px solid var(--border);color:var(--text);font-size:1rem;padding:10px;border-radius:10px;cursor:pointer;transition:all .2s;font-family:'DM Mono',monospace;}
+.zoom-btn:hover{background:rgba(0,212,255,0.1);border-color:rgba(0,212,255,0.3);}
+.time-control{margin-top:4px;}
+.time-label{font-size:0.68rem;color:var(--muted);text-transform:uppercase;letter-spacing:.1em;margin-bottom:8px;}
+.time-slider{width:100%;-webkit-appearance:none;appearance:none;height:4px;background:rgba(255,255,255,0.1);border-radius:2px;outline:none;}
+.time-slider::-webkit-slider-thumb{-webkit-appearance:none;width:14px;height:14px;background:var(--cyan);border-radius:50%;cursor:pointer;box-shadow:0 0 8px var(--cyan);}
+.time-display{font-family:'DM Mono',monospace;font-size:0.78rem;color:var(--cyan);margin-top:8px;text-align:center;}
+.time-buttons{display:flex;gap:6px;margin-top:10px;}
+.time-btn{flex:1;background:rgba(255,255,255,0.04);border:1px solid var(--border);color:var(--muted);font-size:0.7rem;padding:7px;border-radius:8px;cursor:pointer;transition:all .2s;font-family:'DM Sans',sans-serif;}
+.time-btn:hover{color:var(--cyan);border-color:rgba(0,212,255,0.3);}
+.time-btn.active{background:rgba(0,212,255,0.1);color:var(--cyan);border-color:rgba(0,212,255,0.35);}
+
+/* Bottom timeline */
+.timeline-bar{position:fixed;bottom:90px;left:50%;transform:translateX(-50%);z-index:50;display:flex;align-items:center;gap:4px;background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:10px 14px;backdrop-filter:blur(24px);}
+.tl-tick{display:flex;flex-direction:column;align-items:center;gap:4px;cursor:pointer;padding:0 6px;opacity:.5;transition:opacity .2s;}
+.tl-tick:hover,.tl-tick.active{opacity:1;}
+.tl-bar{width:20px;height:4px;border-radius:2px;background:rgba(0,212,255,0.3);}
+.tl-tick.active .tl-bar{background:var(--cyan);height:6px;}
+.tl-time{font-family:'DM Mono',monospace;font-size:0.6rem;color:var(--muted);}
+.tl-tick.active .tl-time{color:var(--cyan);}
+
+/* Alert overlay — bottom bar */
+.alert-strip{position:fixed;bottom:20px;left:240px;right:240px;z-index:50;display:flex;gap:10px;}
+.storm-chip{background:rgba(255,107,53,0.15);border:1px solid rgba(255,107,53,0.35);border-radius:10px;padding:10px 16px;display:flex;align-items:center;gap:10px;cursor:pointer;transition:all .2s;flex:1;}
+.storm-chip:hover{background:rgba(255,107,53,0.25);}
+.storm-chip.warn{background:rgba(255,209,102,0.1);border-color:rgba(255,209,102,0.3);}
+.storm-chip.watch{background:rgba(100,180,255,0.08);border-color:rgba(100,180,255,0.25);}
+.chip-icon{font-size:1.1rem;flex-shrink:0;}
+.chip-content{min-width:0;}
+.chip-title{font-size:0.75rem;font-weight:600;color:var(--storm);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.storm-chip.warn .chip-title{color:var(--gold);}
+.storm-chip.watch .chip-title{color:#64a8e0;}
+.chip-loc{font-size:0.65rem;color:var(--muted);margin-top:1px;}
+
+/* Legend */
+.legend-panel{position:fixed;bottom:20px;left:20px;z-index:50;background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:14px 16px;backdrop-filter:blur(24px);}
+.legend-title{font-size:0.62rem;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin-bottom:10px;}
+.legend-scale{display:flex;height:8px;border-radius:4px;overflow:hidden;margin-bottom:6px;width:160px;background:linear-gradient(90deg,#003080,#0070c0,#00c0c0,#00d060,#a0d000,#d0a000,#d04000,#a00000);}
+.legend-labels{display:flex;justify-content:space-between;font-family:'DM Mono',monospace;font-size:0.6rem;color:var(--muted);}
+
+/* Map world SVG (stylized) */
+canvas{display:block;}
+
+/* Signal indicator */
+.signal-box{position:fixed;top:80px;left:50%;transform:translateX(-50%);z-index:60;background:rgba(4,12,26,0.9);border:1px solid rgba(0,212,255,0.2);border-radius:10px;padding:8px 20px;font-family:'DM Mono',monospace;font-size:0.75rem;color:var(--cyan);backdrop-filter:blur(16px);display:flex;align-items:center;gap:10px;}
+.sig-dot{width:6px;height:6px;background:var(--green);border-radius:50%;animation:pulse 1.5s infinite;}
+</style>
+</head>
+<body>
+
+<!-- Radar map canvas -->
+<canvas id="worldMap" class="map-canvas"></canvas>
+
+<nav>
+  <a href="#" class="logo"><div class="logo-dot">🌤</div>Sky<span>Pulse</span></a>
+  <div class="nav-center">
+    <div class="live-ind"><span class="live-dot"></span> LIVE</div>
+    <span>Global Radar · Updated 1 min ago</span>
+  </div>
+  <div class="nav-right">
+    <button class="nav-icon-btn active">📡 Radar</button>
+    <button class="nav-icon-btn">💨 Wind</button>
+    <button class="nav-icon-btn">🌡 Temp</button>
+    <button class="nav-icon-btn">⛈ Storms</button>
+  </div>
+</nav>
+
+<!-- Signal bar -->
+<div class="signal-box">
+  <span class="sig-dot"></span>
+  Radar refresh in 00:47 &nbsp;·&nbsp; Resolution: 2km &nbsp;·&nbsp; Coverage: Global
+</div>
+
+<!-- Layers panel -->
+<div class="layers-panel">
+  <div class="panel-title">Map Layers</div>
+  <button class="layer-btn active"><div class="layer-dot" style="background:#00d4ff;"></div><span class="layer-icon">🌧</span>Precipitation</button>
+  <button class="layer-btn"><div class="layer-dot" style="background:#7ee8fa;"></div><span class="layer-icon">💨</span>Wind Speed</button>
+  <button class="layer-btn"><div class="layer-dot" style="background:#ffd166;"></div><span class="layer-icon">🌡</span>Temperature</button>
+  <button class="layer-btn"><div class="layer-dot" style="background:#c8c8ff;"></div><span class="layer-icon">☁️</span>Cloud Cover</button>
+  <button class="layer-btn"><div class="layer-dot" style="background:#80ffb0;"></div><span class="layer-icon">💧</span>Humidity</button>
+  <button class="layer-btn"><div class="layer-dot" style="background:#ff9a3c;"></div><span class="layer-icon">🔵</span>Pressure</button>
+  <button class="layer-btn"><div class="layer-dot" style="background:#ff6b35;box-shadow:0 0 6px #ff6b35;"></div><span class="layer-icon">⛈</span>Storm Tracks</button>
+
+  <div style="height:1px;background:rgba(255,255,255,0.07);margin:14px 0;"></div>
+  <div class="panel-title" style="margin-bottom:10px;">Active Storms (3)</div>
+  <div style="display:flex;flex-direction:column;gap:6px;">
+    <div style="display:flex;align-items:center;gap:8px;padding:8px 10px;background:rgba(255,107,53,0.1);border:1px solid rgba(255,107,53,0.25);border-radius:8px;font-size:0.75rem;cursor:pointer;">
+      <span>🌀</span><div><div style="color:#ff9060;font-weight:500;">Hurricane Ana</div><div style="color:var(--muted);font-size:0.65rem;">Cat. 2 · Gulf of Mexico</div></div>
+    </div>
+    <div style="display:flex;align-items:center;gap:8px;padding:8px 10px;background:rgba(255,209,102,0.08);border:1px solid rgba(255,209,102,0.2);border-radius:8px;font-size:0.75rem;cursor:pointer;">
+      <span>🌪</span><div><div style="color:#ffd166;font-weight:500;">Cyclone Bay</div><div style="color:var(--muted);font-size:0.65rem;">Tropical · Indian Ocean</div></div>
+    </div>
+    <div style="display:flex;align-items:center;gap:8px;padding:8px 10px;background:rgba(100,180,255,0.08);border:1px solid rgba(100,180,255,0.2);border-radius:8px;font-size:0.75rem;cursor:pointer;">
+      <span>⛈</span><div><div style="color:#80b8ff;font-weight:500;">Storm Cell · EU</div><div style="color:var(--muted);font-size:0.65rem;">Severe · Central Europe</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- Controls panel -->
+<div class="controls-panel">
+  <div class="panel-title">Navigation</div>
+  <div class="zoom-btns">
+    <button class="zoom-btn">＋</button>
+    <button class="zoom-btn">－</button>
+    <button class="zoom-btn">⊕</button>
+  </div>
+  <div class="time-control">
+    <div class="time-label">Time Playback</div>
+    <input type="range" class="time-slider" id="timeSlider" min="0" max="18" value="12"/>
+    <div class="time-display" id="timeDisplay">NOW</div>
+    <div class="time-buttons">
+      <button class="time-btn">−3h</button>
+      <button class="time-btn active">▶ Play</button>
+      <button class="time-btn">+6h</button>
+    </div>
+  </div>
+  <div style="height:1px;background:rgba(255,255,255,0.06);margin:14px 0;"></div>
+  <div class="panel-title">Opacity</div>
+  <input type="range" class="time-slider" min="10" max="100" value="75" style="margin-top:6px;"/>
+  <div style="display:flex;justify-content:space-between;font-family:'DM Mono',monospace;font-size:0.65rem;color:var(--muted);margin-top:4px;"><span>Faint</span><span>Full</span></div>
+</div>
+
+<!-- Timeline -->
+<div class="timeline-bar">
+  <div class="tl-tick"><div class="tl-bar" style="background:rgba(0,212,255,0.2)"></div><div class="tl-time">-3h</div></div>
+  <div class="tl-tick"><div class="tl-bar"></div><div class="tl-time">-2h</div></div>
+  <div class="tl-tick"><div class="tl-bar"></div><div class="tl-time">-1h</div></div>
+  <div class="tl-tick active"><div class="tl-bar"></div><div class="tl-time">NOW</div></div>
+  <div class="tl-tick"><div class="tl-bar" style="background:rgba(255,209,102,0.3)"></div><div class="tl-time">+1h</div></div>
+  <div class="tl-tick"><div class="tl-bar" style="background:rgba(255,209,102,0.3)"></div><div class="tl-time">+2h</div></div>
+  <div class="tl-tick"><div class="tl-bar" style="background:rgba(255,209,102,0.3)"></div><div class="tl-time">+3h</div></div>
+  <div class="tl-tick"><div class="tl-bar" style="background:rgba(255,209,102,0.3)"></div><div class="tl-time">+6h</div></div>
+</div>
+
+<!-- Alert strip -->
+<div class="alert-strip">
+  <div class="storm-chip">
+    <span class="chip-icon">🌀</span>
+    <div class="chip-content"><div class="chip-title">Hurricane Ana — Cat. 2</div><div class="chip-loc">Gulf of Mexico · Moving NNW at 18 km/h</div></div>
+  </div>
+  <div class="storm-chip warn">
+    <span class="chip-icon">⛈️</span>
+    <div class="chip-content"><div class="chip-title">Severe Thunderstorm Warning</div><div class="chip-loc">Northeast US · Until 9:00 PM EDT</div></div>
+  </div>
+  <div class="storm-chip watch">
+    <span class="chip-icon">❄️</span>
+    <div class="chip-content"><div class="chip-title">Winter Storm Watch</div><div class="chip-loc">Northern Canada · Monday–Tuesday</div></div>
+  </div>
+</div>
+
+<!-- Legend -->
+<div class="legend-panel">
+  <div class="legend-title">Precipitation Intensity</div>
+  <div class="legend-scale"></div>
+  <div class="legend-labels"><span>None</span><span>Light</span><span>Moderate</span><span>Heavy</span><span>Extreme</span></div>
+</div>
+
+<script>
+const canvas = document.getElementById('worldMap');
+const ctx = canvas.getContext('2d');
+
+function resize(){canvas.width=window.innerWidth;canvas.height=window.innerHeight;}
+resize();
+window.addEventListener('resize',resize);
+
+// Particles / storm cells
+const storms=[];
+for(let i=0;i<8;i++){
+  storms.push({
+    x:Math.random()*canvas.width,y:Math.random()*canvas.height,
+    r:30+Math.random()*80,
+    vx:(Math.random()-.5)*.3,vy:(Math.random()-.5)*.3,
+    col:['rgba(0,212,255,','rgba(100,150,255,','rgba(0,180,120,'][Math.floor(Math.random()*3)],
+    op:0.1+Math.random()*0.25,phase:Math.random()*Math.PI*2
+  });
+}
+
+let t=0;
+function draw(){
+  t+=0.008;
+  ctx.fillStyle='#020a14';ctx.fillRect(0,0,canvas.width,canvas.height);
+
+  // Grid
+  ctx.strokeStyle='rgba(0,80,140,0.15)';ctx.lineWidth=1;
+  for(let x=0;x<canvas.width;x+=60){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,canvas.height);ctx.stroke();}
+  for(let y=0;y<canvas.height;y+=60){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(canvas.width,y);ctx.stroke();}
+
+  // Simplified continent shapes (abstract blobs)
+  const continents=[
+    {pts:[[.12,.25],[.22,.15],[.3,.18],[.32,.35],[.25,.45],[.13,.42]],col:'rgba(15,35,65,0.9)'},
+    {pts:[[.38,.18],[.55,.15],[.65,.22],[.68,.4],[.6,.5],[.42,.48],[.36,.35]],col:'rgba(12,30,60,0.9)'},
+    {pts:[[.55,.45],[.68,.42],[.75,.55],[.7,.68],[.56,.65]],col:'rgba(10,28,55,0.9)'},
+    {pts:[[.7,.2],[.85,.18],[.88,.35],[.82,.42],[.72,.38]],col:'rgba(14,32,62,0.9)'},
+    {pts:[[.82,.52],[.95,.5],[.96,.7],[.85,.75],[.78,.65]],col:'rgba(12,28,56,0.9)'},
+  ];
+  continents.forEach(c=>{
+    ctx.beginPath();
+    c.pts.forEach((p,i)=>{
+      const x=p[0]*canvas.width,y=p[1]*canvas.height;
+      i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);
+    });
+    ctx.closePath();ctx.fillStyle=c.col;ctx.fill();
+    ctx.strokeStyle='rgba(0,100,200,0.2)';ctx.lineWidth=1;ctx.stroke();
+  });
+
+  // Storm cells
+  storms.forEach(s=>{
+    s.x+=s.vx;s.y+=s.vy;
+    if(s.x<-s.r)s.x=canvas.width+s.r;
+    if(s.x>canvas.width+s.r)s.x=-s.r;
+    if(s.y<-s.r)s.y=canvas.height+s.r;
+    if(s.y>canvas.height+s.r)s.y=-s.r;
+    const pulse=Math.sin(t*2+s.phase)*0.3+0.7;
+    const g=ctx.createRadialGradient(s.x,s.y,0,s.x,s.y,s.r*pulse);
+    g.addColorStop(0,s.col+(s.op*1.5)+')');
+    g.addColorStop(0.5,s.col+(s.op*0.6)+')');
+    g.addColorStop(1,s.col+'0)');
+    ctx.beginPath();ctx.arc(s.x,s.y,s.r*pulse,0,Math.PI*2);
+    ctx.fillStyle=g;ctx.fill();
+  });
+
+  // Hurricane spiral (Gulf)
+  const hx=canvas.width*.3,hy=canvas.height*.55;
+  for(let i=0;i<3;i++){
+    const ar=20+i*25,ao=(t*(.5+i*.2))%(Math.PI*2);
+    ctx.beginPath();
+    for(let a=ao;a<ao+Math.PI*1.5;a+=0.05){
+      const r=ar*(a-ao+.1)*.4;
+      const x2=hx+Math.cos(a)*r,y2=hy+Math.sin(a)*r;
+      a===ao?ctx.moveTo(x2,y2):ctx.lineTo(x2,y2);
+    }
+    ctx.strokeStyle=`rgba(255,107,53,${0.4-i*.1})`;ctx.lineWidth=2-i*.5;ctx.stroke();
+  }
+  ctx.beginPath();ctx.arc(hx,hy,6,0,Math.PI*2);
+  ctx.fillStyle='rgba(255,107,53,0.8)';ctx.fill();
+  ctx.beginPath();ctx.arc(hx,hy,14,0,Math.PI*2);
+  ctx.strokeStyle='rgba(255,107,53,0.4)';ctx.lineWidth=1;ctx.stroke();
+
+  // Scan line
+  const scanY=((t*30)%canvas.height);
+  const sg=ctx.createLinearGradient(0,scanY-30,0,scanY+2);
+  sg.addColorStop(0,'rgba(0,212,255,0)');sg.addColorStop(1,'rgba(0,212,255,0.04)');
+  ctx.fillStyle=sg;ctx.fillRect(0,scanY-30,canvas.width,32);
+
+  // Lat/long grid lines
+  ctx.strokeStyle='rgba(0,150,200,0.06)';ctx.lineWidth=1;
+  for(let lng=-180;lng<=180;lng+=30){
+    const x=(lng+180)/360*canvas.width;
+    ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,canvas.height);ctx.stroke();
+    ctx.fillStyle='rgba(0,150,200,0.3)';ctx.font='9px DM Mono,monospace';
+    ctx.fillText(lng+'°',x+2,12);
+  }
+  for(let lat=-90;lat<=90;lat+=30){
+    const y=(90-lat)/180*canvas.height;
+    ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(canvas.width,y);ctx.stroke();
+    ctx.fillStyle='rgba(0,150,200,0.3)';ctx.font='9px DM Mono,monospace';
+    ctx.fillText(lat+'°',2,y-2);
+  }
+
+  requestAnimationFrame(draw);
+}
+draw();
+
+// Timeline interaction
+document.querySelectorAll('.tl-tick').forEach((t,i)=>{
+  t.addEventListener('click',()=>{
+    document.querySelectorAll('.tl-tick').forEach(x=>x.classList.remove('active'));
+    t.classList.add('active');
+  });
+});
+
+// Layer buttons
+document.querySelectorAll('.layer-btn').forEach(b=>{
+  b.addEventListener('click',()=>{
+    document.querySelectorAll('.layer-btn').forEach(x=>x.classList.remove('active'));
+    b.classList.add('active');
+  });
+});
+
+// Time slider
+const slider=document.getElementById('timeSlider');
+const disp=document.getElementById('timeDisplay');
+const times=['-3:00','-2:30','-2:00','-1:30','-1:00','-0:30','NOW','+0:30','+1:00','+1:30','+2:00','+2:30','NOW','+1h','+2h','+3h','+4h','+5h','+6h'];
+slider.addEventListener('input',()=>{disp.textContent=times[slider.value]||'NOW';});
+</script>
+</body>
+</html>

@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>SkyPulse — Forecast: New York</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --bg:#050e1c;--surface:rgba(255,255,255,0.04);--border:rgba(255,255,255,0.07);
+  --cyan:#00d4ff;--ice:#7ee8fa;--gold:#ffd166;--storm:#ff6b35;--green:#6ddc8b;
+  --text:#f0f4ff;--muted:#6a7f9a;--glow:0 0 40px rgba(0,212,255,0.15);
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;}
+
+/* Background */
+.bg-layer{position:fixed;inset:0;z-index:0;
+  background:
+    radial-gradient(ellipse 100% 60% at 50% -10%,rgba(13,40,100,0.8) 0%,transparent 60%),
+    radial-gradient(ellipse 60% 40% at 80% 60%,rgba(0,60,120,0.3) 0%,transparent 50%),
+    #050e1c;
+}
+.rain-canvas{position:fixed;inset:0;z-index:0;pointer-events:none;opacity:0.35;}
+
+/* NAV */
+nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:18px 40px;background:rgba(5,14,28,0.8);backdrop-filter:blur(24px);border-bottom:1px solid var(--border);}
+.logo{font-family:'Syne',sans-serif;font-weight:800;font-size:1.3rem;letter-spacing:-0.02em;display:flex;align-items:center;gap:8px;text-decoration:none;color:var(--text);}
+.logo-dot{width:28px;height:28px;background:linear-gradient(135deg,var(--cyan),#006fff);border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:15px;}
+.logo span{color:var(--cyan);}
+.nav-search{display:flex;align-items:center;gap:12px;}
+.nav-search input{background:rgba(255,255,255,0.06);border:1px solid var(--border);border-radius:10px;padding:10px 16px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:0.85rem;outline:none;width:240px;transition:border-color .2s;}
+.nav-search input:focus{border-color:rgba(0,212,255,0.4);}
+.nav-search input::placeholder{color:var(--muted);}
+.nav-tabs{display:flex;gap:4px;}
+.nav-tab{padding:8px 16px;border-radius:8px;font-size:0.8rem;color:var(--muted);cursor:pointer;transition:all .2s;border:none;background:none;font-family:'DM Sans',sans-serif;}
+.nav-tab:hover{color:var(--text);background:var(--surface);}
+.nav-tab.active{color:var(--cyan);background:rgba(0,212,255,0.08);}
+
+/* LAYOUT */
+.page{position:relative;z-index:1;padding:96px 40px 60px;max-width:1300px;margin:0 auto;}
+
+/* HERO SECTION */
+.forecast-hero{display:grid;grid-template-columns:1fr auto;gap:40px;align-items:start;margin-bottom:32px;animation:fadeUp .7s .1s both;}
+@keyframes fadeUp{from{opacity:0;transform:translateY(24px);}to{opacity:1;transform:translateY(0);}}
+
+.location-meta{display:flex;align-items:center;gap:8px;margin-bottom:12px;font-size:0.8rem;color:var(--muted);}
+.loc-pin{color:var(--cyan);font-size:1rem;}
+.location-name{font-family:'Syne',sans-serif;font-size:clamp(2rem,5vw,3.5rem);font-weight:800;letter-spacing:-0.04em;line-height:1;}
+.location-sub{color:var(--muted);font-size:0.875rem;margin-top:6px;}
+.update-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(109,220,139,0.1);border:1px solid rgba(109,220,139,0.25);color:var(--green);font-size:0.7rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;padding:5px 12px;border-radius:100px;margin-top:12px;}
+.upd-dot{width:5px;height:5px;background:var(--green);border-radius:50%;animation:pulse 1.5s infinite;}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(109,220,139,0.5);}50%{box-shadow:0 0 0 5px rgba(109,220,139,0);}}
+
+/* Big temp */
+.temp-display{text-align:right;}
+.temp-big{font-family:'Syne',sans-serif;font-size:clamp(4rem,10vw,8rem);font-weight:800;letter-spacing:-0.06em;line-height:1;background:linear-gradient(160deg,#fff 40%,var(--ice));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.temp-condition{font-size:1.1rem;color:var(--muted);margin-top:-4px;text-align:right;}
+.temp-range{font-size:0.875rem;color:var(--muted);margin-top:8px;}
+.temp-range strong{color:var(--text);}
+
+/* CURRENT CONDITIONS STRIP */
+.conditions-strip{display:grid;grid-template-columns:repeat(6,1fr);gap:12px;margin-bottom:28px;animation:fadeUp .7s .2s both;}
+.cond-card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:18px 16px;text-align:center;transition:transform .2s,border-color .2s;}
+.cond-card:hover{transform:translateY(-2px);border-color:rgba(0,212,255,0.2);}
+.cond-icon{font-size:1.6rem;margin-bottom:8px;display:block;}
+.cond-value{font-family:'Syne',sans-serif;font-size:1.1rem;font-weight:700;}
+.cond-label{font-size:0.68rem;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-top:4px;}
+
+/* FEELS LIKE / SMART TIP */
+.smart-row{display:grid;grid-template-columns:1fr 2fr;gap:16px;margin-bottom:28px;animation:fadeUp .7s .25s both;}
+.feels-card{background:linear-gradient(135deg,rgba(0,212,255,0.08),rgba(0,100,200,0.06));border:1px solid rgba(0,212,255,0.18);border-radius:16px;padding:24px;display:flex;flex-direction:column;justify-content:center;}
+.feels-label{font-size:0.7rem;text-transform:uppercase;letter-spacing:.1em;color:var(--cyan);margin-bottom:8px;}
+.feels-val{font-family:'Syne',sans-serif;font-size:2.5rem;font-weight:800;letter-spacing:-0.04em;}
+.feels-note{font-size:0.8rem;color:var(--muted);margin-top:6px;}
+.smart-tip{background:linear-gradient(135deg,rgba(255,209,102,0.07),rgba(255,107,53,0.04));border:1px solid rgba(255,209,102,0.2);border-radius:16px;padding:24px;}
+.tip-header{display:flex;align-items:center;gap:8px;margin-bottom:16px;}
+.tip-header h3{font-family:'Syne',sans-serif;font-size:1rem;font-weight:700;}
+.tip-badge{background:rgba(255,209,102,0.15);color:var(--gold);font-size:0.65rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:4px 10px;border-radius:100px;}
+.tip-row{display:flex;align-items:flex-start;gap:12px;padding:10px 0;border-bottom:1px solid rgba(255,255,255,0.05);}
+.tip-row:last-child{border-bottom:none;padding-bottom:0;}
+.tip-time{font-size:0.75rem;color:var(--muted);min-width:90px;padding-top:1px;}
+.tip-text{font-size:0.85rem;color:#c0d0e0;}
+.tip-icon{font-size:1.1rem;flex-shrink:0;}
+
+/* HOURLY */
+.section-title{font-family:'Syne',sans-serif;font-size:0.7rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-bottom:14px;}
+.hourly-section{margin-bottom:28px;animation:fadeUp .7s .3s both;}
+.hourly-scroll{overflow-x:auto;padding-bottom:8px;}
+.hourly-scroll::-webkit-scrollbar{height:4px;}
+.hourly-scroll::-webkit-scrollbar-track{background:var(--surface);border-radius:2px;}
+.hourly-scroll::-webkit-scrollbar-thumb{background:rgba(0,212,255,0.3);border-radius:2px;}
+.hourly-inner{display:flex;gap:10px;width:max-content;}
+.hour-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:16px 14px;text-align:center;width:90px;flex-shrink:0;transition:all .2s;cursor:default;}
+.hour-card:hover{border-color:rgba(0,212,255,0.3);background:rgba(0,212,255,0.06);}
+.hour-card.now{border-color:rgba(0,212,255,0.4);background:rgba(0,212,255,0.08);}
+.hour-time{font-size:0.7rem;color:var(--muted);}
+.hour-time.now-label{color:var(--cyan);font-weight:600;}
+.hour-icon{font-size:1.5rem;margin:8px 0;}
+.hour-temp{font-family:'Syne',sans-serif;font-size:1rem;font-weight:700;}
+.hour-rain{font-size:0.65rem;color:#64a8e0;margin-top:4px;}
+.rain-bar-wrap{height:3px;background:rgba(255,255,255,0.08);border-radius:2px;margin-top:6px;overflow:hidden;}
+.rain-bar{height:100%;background:linear-gradient(90deg,var(--cyan),#006fff);border-radius:2px;}
+
+/* 10-DAY */
+.tenday-section{margin-bottom:28px;animation:fadeUp .7s .35s both;}
+.day-row{display:flex;align-items:center;gap:16px;padding:14px 20px;background:var(--surface);border:1px solid var(--border);border-radius:14px;margin-bottom:8px;transition:all .2s;}
+.day-row:hover{border-color:rgba(255,255,255,0.12);background:rgba(255,255,255,0.06);}
+.day-name{font-weight:500;font-size:0.9rem;min-width:80px;}
+.day-icon{font-size:1.4rem;min-width:40px;text-align:center;}
+.day-cond{font-size:0.8rem;color:var(--muted);flex:1;}
+.day-rain-pct{font-size:0.75rem;color:#64a8e0;min-width:44px;text-align:right;}
+.day-temps{display:flex;align-items:center;gap:8px;min-width:120px;justify-content:flex-end;}
+.temp-bar-track{flex:1;height:4px;background:rgba(255,255,255,0.08);border-radius:2px;overflow:hidden;position:relative;min-width:60px;}
+.temp-bar-fill{height:100%;border-radius:2px;background:linear-gradient(90deg,var(--ice),var(--gold));}
+.day-lo{font-size:0.85rem;color:var(--muted);}
+.day-hi{font-family:'Syne',sans-serif;font-size:0.9rem;font-weight:700;}
+
+/* SUN / MOON */
+.astro-row{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:28px;animation:fadeUp .7s .4s both;}
+.astro-card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:24px;}
+.astro-header{display:flex;align-items:center;gap:10px;margin-bottom:16px;}
+.astro-icon{font-size:1.5rem;}
+.astro-title{font-family:'Syne',sans-serif;font-size:0.9rem;font-weight:700;}
+.astro-arc{position:relative;height:80px;margin-bottom:12px;}
+.arc-svg{width:100%;height:80px;}
+.astro-times{display:flex;justify-content:space-between;font-size:0.8rem;}
+.astro-time-item{text-align:center;}
+.astro-time-label{font-size:0.65rem;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;}
+.astro-time-val{font-family:'Syne',sans-serif;font-weight:700;font-size:1rem;margin-top:2px;}
+
+/* ALERT CARD */
+.alert-card{background:linear-gradient(135deg,rgba(255,107,53,0.1),rgba(255,107,53,0.04));border:1px solid rgba(255,107,53,0.3);border-radius:16px;padding:20px 24px;margin-bottom:28px;display:flex;align-items:center;gap:16px;animation:fadeUp .7s .15s both;}
+.alert-icon{font-size:1.8rem;flex-shrink:0;}
+.alert-content{}
+.alert-title{font-family:'Syne',sans-serif;font-weight:700;font-size:1rem;color:var(--storm);margin-bottom:4px;}
+.alert-desc{font-size:0.85rem;color:#c0a090;}
+.alert-btn{margin-left:auto;background:rgba(255,107,53,0.15);border:1px solid rgba(255,107,53,0.3);color:var(--storm);font-family:'DM Sans',sans-serif;font-size:0.8rem;font-weight:600;padding:10px 20px;border-radius:10px;cursor:pointer;white-space:nowrap;transition:all .2s;}
+.alert-btn:hover{background:rgba(255,107,53,0.25);}
+
+/* Radar mini */
+.bottom-row{display:grid;grid-template-columns:2fr 1fr;gap:16px;animation:fadeUp .7s .45s both;}
+.radar-card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:0;overflow:hidden;}
+.radar-header{padding:20px 24px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
+.radar-mini{height:260px;background:#020810;position:relative;overflow:hidden;}
+.r-grid-line{position:absolute;background:rgba(0,212,255,0.05);}
+.r-ring{position:absolute;top:50%;left:50%;border:1px solid rgba(0,212,255,0.12);border-radius:50%;transform:translate(-50%,-50%);}
+.r-sweep{position:absolute;top:50%;left:50%;width:130px;height:2px;transform-origin:left;background:linear-gradient(to right,transparent,rgba(0,212,255,0.6));animation:sweep 4s linear infinite;}
+@keyframes sweep{from{transform:rotate(0deg);}to{transform:rotate(360deg);}}
+.r-center{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:8px;height:8px;background:var(--cyan);border-radius:50%;box-shadow:0 0 16px var(--cyan);}
+.r-blip{position:absolute;width:6px;height:6px;border-radius:50%;animation:blip var(--d,3s) ease-in-out infinite var(--del,0s);}
+@keyframes blip{0%,100%{opacity:0;transform:scale(0.5);}50%{opacity:1;transform:scale(1);}}
+.r-label{position:absolute;font-size:0.65rem;color:rgba(0,212,255,0.5);}
+.radar-view-btn{background:rgba(0,212,255,0.1);border:1px solid rgba(0,212,255,0.25);color:var(--cyan);font-family:'DM Sans',sans-serif;font-size:0.78rem;font-weight:600;padding:8px 16px;border-radius:8px;cursor:pointer;transition:all .2s;}
+.radar-view-btn:hover{background:rgba(0,212,255,0.18);}
+
+/* Save card */
+.save-card{background:linear-gradient(160deg,rgba(0,212,255,0.08),rgba(0,100,255,0.06));border:1px solid rgba(0,212,255,0.2);border-radius:16px;padding:28px;}
+.save-title{font-family:'Syne',sans-serif;font-size:1.1rem;font-weight:800;margin-bottom:8px;}
+.save-desc{font-size:0.85rem;color:var(--muted);margin-bottom:24px;line-height:1.6;}
+.save-btn{width:100%;background:linear-gradient(135deg,var(--cyan),#006fff);border:none;color:#000;font-family:'Syne',sans-serif;font-weight:700;font-size:0.9rem;padding:14px;border-radius:12px;cursor:pointer;transition:opacity .2s;}
+.save-btn:hover{opacity:.9;}
+.save-divider{display:flex;align-items:center;gap:12px;margin:16px 0;font-size:0.75rem;color:var(--muted);}
+.save-divider::before,.save-divider::after{content:'';flex:1;height:1px;background:var(--border);}
+.google-btn{width:100%;background:var(--surface);border:1px solid var(--border);color:var(--text);font-family:'DM Sans',sans-serif;font-size:0.85rem;font-weight:500;padding:12px;border-radius:12px;cursor:pointer;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:8px;}
+.google-btn:hover{border-color:rgba(255,255,255,0.2);}
+.perk-list{margin-top:20px;display:flex;flex-direction:column;gap:8px;}
+.perk{display:flex;align-items:center;gap:8px;font-size:0.78rem;color:var(--muted);}
+.perk::before{content:'✓';color:var(--green);font-weight:700;}
+
+@media(max-width:900px){
+  nav{padding:14px 20px;}
+  .nav-tabs,.nav-search input{display:none;}
+  .page{padding:80px 20px 40px;}
+  .forecast-hero{grid-template-columns:1fr;}
+  .temp-display{text-align:left;}
+  .conditions-strip{grid-template-columns:repeat(3,1fr);}
+  .smart-row{grid-template-columns:1fr;}
+  .astro-row{grid-template-columns:1fr;}
+  .bottom-row{grid-template-columns:1fr;}
+}
+</style>
+</head>
+<body>
+<div class="bg-layer"></div>
+<canvas class="rain-canvas" id="rainCanvas"></canvas>
+
+<nav>
+  <a href="#" class="logo"><div class="logo-dot">🌤</div>Sky<span>Pulse</span></a>
+  <div class="nav-search">
+    <input type="text" placeholder="🔍  Search city or region…" value="New York, NY"/>
+  </div>
+  <div class="nav-tabs">
+    <button class="nav-tab active">Today</button>
+    <button class="nav-tab">Hourly</button>
+    <button class="nav-tab">10-Day</button>
+    <button class="nav-tab">Radar</button>
+  </div>
+</nav>
+
+<div class="page">
+
+  <!-- Alert -->
+  <div class="alert-card">
+    <span class="alert-icon">⛈️</span>
+    <div class="alert-content">
+      <div class="alert-title">Thunderstorm Warning — Active until 9:00 PM</div>
+      <div class="alert-desc">Severe thunderstorms with lightning and gusty winds expected. Avoid outdoor activity until the warning expires.</div>
+    </div>
+    <button class="alert-btn">View Alert →</button>
+  </div>
+
+  <!-- Hero -->
+  <div class="forecast-hero">
+    <div>
+      <div class="location-meta"><span class="loc-pin">📍</span> New York, New York, United States</div>
+      <h1 class="location-name">New York</h1>
+      <div class="location-sub">Friday, 17 April 2026 · Local time 3:42 PM EDT</div>
+      <div class="update-badge"><span class="upd-dot"></span> Updated 2 min ago</div>
+    </div>
+    <div class="temp-display">
+      <div class="temp-big">24°</div>
+      <div class="temp-condition">⛅ Partly Cloudy</div>
+      <div class="temp-range">H: <strong>27°</strong> &nbsp;·&nbsp; L: <strong>17°</strong></div>
+    </div>
+  </div>
+
+  <!-- Conditions -->
+  <div class="conditions-strip">
+    <div class="cond-card"><span class="cond-icon">💧</span><div class="cond-value">68%</div><div class="cond-label">Humidity</div></div>
+    <div class="cond-card"><span class="cond-icon">💨</span><div class="cond-value">22 km/h</div><div class="cond-label">Wind SW</div></div>
+    <div class="cond-card"><span class="cond-icon">☀️</span><div class="cond-value">6 High</div><div class="cond-label">UV Index</div></div>
+    <div class="cond-card"><span class="cond-icon">👁️</span><div class="cond-value">16 km</div><div class="cond-label">Visibility</div></div>
+    <div class="cond-card"><span class="cond-icon">🌡️</span><div class="cond-value">1013 hPa</div><div class="cond-label">Pressure</div></div>
+    <div class="cond-card"><span class="cond-icon">🌿</span><div class="cond-value">42 Good</div><div class="cond-label">AQI</div></div>
+  </div>
+
+  <!-- Feels Like + Smart Tip -->
+  <div class="smart-row">
+    <div class="feels-card">
+      <div class="feels-label">Feels Like</div>
+      <div class="feels-val">26°C</div>
+      <div class="feels-note">Slightly warmer than actual due to humidity and low wind.</div>
+    </div>
+    <div class="smart-tip">
+      <div class="tip-header">
+        <h3>🧥 What to Wear Today</h3>
+        <span class="tip-badge">AI Tip</span>
+      </div>
+      <div class="tip-row"><span class="tip-icon">🌤️</span><div class="tip-time">Morning · 7–11AM</div><div class="tip-text">Light layer recommended. 18°C, breezy. A light jacket for the commute.</div></div>
+      <div class="tip-row"><span class="tip-icon">☀️</span><div class="tip-time">Afternoon · 12–5PM</div><div class="tip-text">T-shirt weather. Clear spells, high of 27°C. SPF recommended (UV 6).</div></div>
+      <div class="tip-row"><span class="tip-icon">⛈️</span><div class="tip-time">Evening · 6–10PM</div><div class="tip-text">Bring an umbrella. Thunderstorms likely after 7PM (85% chance). Stay indoors if possible.</div></div>
+    </div>
+  </div>
+
+  <!-- Hourly -->
+  <div class="hourly-section">
+    <div class="section-title">⏱ Hourly Forecast — Next 24 Hours</div>
+    <div class="hourly-scroll">
+      <div class="hourly-inner">
+        <div class="hour-card now"><div class="hour-time now-label">Now</div><div class="hour-icon">⛅</div><div class="hour-temp">24°</div><div class="hour-rain">20%</div><div class="rain-bar-wrap"><div class="rain-bar" style="width:20%"></div></div></div>
+        <div class="hour-card"><div class="hour-time">4 PM</div><div class="hour-icon">🌤️</div><div class="hour-temp">26°</div><div class="hour-rain">15%</div><div class="rain-bar-wrap"><div class="rain-bar" style="width:15%"></div></div></div>
+        <div class="hour-card"><div class="hour-time">5 PM</div><div class="hour-icon">⛅</div><div class="hour-temp">25°</div><div class="hour-rain">30%</div><div class="rain-bar-wrap"><div class="rain-bar" style="width:30%"></div></div></div>
+        <div class="hour-card"><div class="hour-time">6 PM</div><div class="hour-icon">🌧️</div><div class="hour-temp">23°</div><div class="hour-rain">60%</div><div class="rain-bar-wrap"><div class="rain-bar" style="width:60%"></div></div></div>
+        <div class="hour-card"><div class="hour-time">7 PM</div><div class="hour-icon">⛈️</div><div class="hour-temp">20°</div><div class="hour-rain">85%</div><div class="rain-bar-wrap"><div class="rain-bar" style="width:85%"></div></div></div>
+        <div class="hour-card"><div class="hour-time">8 PM</div><div class="hour-icon">⛈️</div><div class="hour-temp">19°</div><div class="hour-rain">90%</div><div class="rain-bar-wrap"><div class="rain-bar" style="width:90%"></div></div></div>
+        <div class="hour-card"><div class="hour-time">9 PM</div><div class="hour-icon">🌧️</div><div class="hour-temp">18°</div><div class="hour-rain">70%</div><div class="rain-bar-wrap"><div class="rain-bar" style="width:70%"></div></div></div>
+        <div class="hour-card"><div class="hour-time">10 PM</div><div class="hour-icon">🌦️</div><div class="hour-temp">17°</div><div class="hour-rain">45%</div><div class="rain-bar-wrap"><div class="rain-bar" style="width:45%"></div></div></div>
+        <div class="hour-card"><div class="hour-time">11 PM</div><div class="hour-icon">🌙</div><div class="hour-temp">16°</div><div class="hour-rain">20%</div><div class="rain-bar-wrap"><div class="rain-bar" style="width:20%"></div></div></div>
+        <div class="hour-card"><div class="hour-time">12 AM</div><div class="hour-icon">🌙</div><div class="hour-temp">15°</div><div class="hour-rain">10%</div><div class="rain-bar-wrap"><div class="rain-bar" style="width:10%"></div></div></div>
+        <div class="hour-card"><div class="hour-time">3 AM</div><div class="hour-icon">🌙</div><div class="hour-temp">14°</div><div class="hour-rain">5%</div><div class="rain-bar-wrap"><div class="rain-bar" style="width:5%"></div></div></div>
+        <div class="hour-card"><div class="hour-time">6 AM</div><div class="hour-icon">🌅</div><div class="hour-temp">15°</div><div class="hour-rain">5%</div><div class="rain-bar-wrap"><div class="rain-bar" style="width:5%"></div></div></div>
+        <div class="hour-card"><div class="hour-time">9 AM</div><div class="hour-icon">🌤️</div><div class="hour-temp">19°</div><div class="hour-rain">10%</div><div class="rain-bar-wrap"><div class="rain-bar" style="width:10%"></div></div></div>
+        <div class="hour-card"><div class="hour-time">12 PM</div><div class="hour-icon">☀️</div><div class="hour-temp">24°</div><div class="hour-rain">5%</div><div class="rain-bar-wrap"><div class="rain-bar" style="width:5%"></div></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 10-day -->
+  <div class="tenday-section">
+    <div class="section-title">📅 10-Day Forecast</div>
+    <div class="day-row"><span class="day-name">Today</span><span class="day-icon">⛈️</span><span class="day-cond">Thunderstorm · PM</span><span class="day-rain-pct">💧 85%</span><div class="day-temps"><span class="day-lo">17°</span><div class="temp-bar-track"><div class="temp-bar-fill" style="margin-left:10%;width:70%"></div></div><span class="day-hi">27°</span></div></div>
+    <div class="day-row"><span class="day-name">Sat</span><span class="day-icon">⛅</span><span class="day-cond">Partly Cloudy</span><span class="day-rain-pct">💧 20%</span><div class="day-temps"><span class="day-lo">15°</span><div class="temp-bar-track"><div class="temp-bar-fill" style="margin-left:5%;width:65%"></div></div><span class="day-hi">25°</span></div></div>
+    <div class="day-row"><span class="day-name">Sun</span><span class="day-icon">☀️</span><span class="day-cond">Sunny</span><span class="day-rain-pct">💧 5%</span><div class="day-temps"><span class="day-lo">16°</span><div class="temp-bar-track"><div class="temp-bar-fill" style="margin-left:15%;width:75%"></div></div><span class="day-hi">28°</span></div></div>
+    <div class="day-row"><span class="day-name">Mon</span><span class="day-icon">☀️</span><span class="day-cond">Clear & Warm</span><span class="day-rain-pct">💧 5%</span><div class="day-temps"><span class="day-lo">18°</span><div class="temp-bar-track"><div class="temp-bar-fill" style="margin-left:20%;width:80%"></div></div><span class="day-hi">30°</span></div></div>
+    <div class="day-row"><span class="day-name">Tue</span><span class="day-icon">🌤️</span><span class="day-cond">Partly Cloudy</span><span class="day-rain-pct">💧 25%</span><div class="day-temps"><span class="day-lo">17°</span><div class="temp-bar-track"><div class="temp-bar-fill" style="margin-left:12%;width:72%"></div></div><span class="day-hi">28°</span></div></div>
+    <div class="day-row"><span class="day-name">Wed</span><span class="day-icon">🌧️</span><span class="day-cond">Rain Showers</span><span class="day-rain-pct">💧 70%</span><div class="day-temps"><span class="day-lo">14°</span><div class="temp-bar-track"><div class="temp-bar-fill" style="margin-left:0%;width:55%"></div></div><span class="day-hi">22°</span></div></div>
+    <div class="day-row"><span class="day-name">Thu</span><span class="day-icon">🌦️</span><span class="day-cond">Showers & Sun</span><span class="day-rain-pct">💧 40%</span><div class="day-temps"><span class="day-lo">15°</span><div class="temp-bar-track"><div class="temp-bar-fill" style="margin-left:5%;width:62%"></div></div><span class="day-hi">24°</span></div></div>
+    <div class="day-row"><span class="day-name">Fri</span><span class="day-icon">⛅</span><span class="day-cond">Mostly Cloudy</span><span class="day-rain-pct">💧 30%</span><div class="day-temps"><span class="day-lo">16°</span><div class="temp-bar-track"><div class="temp-bar-fill" style="margin-left:8%;width:65%"></div></div><span class="day-hi">25°</span></div></div>
+  </div>
+
+  <!-- Sun/Moon -->
+  <div class="astro-row">
+    <div class="astro-card">
+      <div class="astro-header"><span class="astro-icon">🌅</span><span class="astro-title">Sun & Daylight</span></div>
+      <svg class="arc-svg" viewBox="0 0 300 80">
+        <defs><linearGradient id="sunGrad" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#ffd166" stop-opacity="0.3"/><stop offset="50%" stop-color="#ff9a3c" stop-opacity="0.8"/><stop offset="100%" stop-color="#ffd166" stop-opacity="0.3"/></linearGradient></defs>
+        <path d="M 20 75 Q 150 5 280 75" stroke="rgba(255,209,102,0.2)" stroke-width="1.5" fill="none" stroke-dasharray="4 4"/>
+        <path d="M 20 75 Q 150 5 210 55" stroke="url(#sunGrad)" stroke-width="2" fill="none"/>
+        <circle cx="210" cy="55" r="7" fill="#ffd166" filter="url(#glow)"/>
+        <circle cx="210" cy="55" r="12" fill="rgba(255,209,102,0.15)"/>
+        <text x="15" y="74" font-size="10" fill="#6a7f9a" font-family="DM Sans">Sunrise</text>
+        <text x="250" y="74" font-size="10" fill="#6a7f9a" font-family="DM Sans">Sunset</text>
+      </svg>
+      <div class="astro-times">
+        <div class="astro-time-item"><div class="astro-time-label">Sunrise</div><div class="astro-time-val" style="color:#ffd166">6:14 AM</div></div>
+        <div class="astro-time-item"><div class="astro-time-label">Day Length</div><div class="astro-time-val">13h 22m</div></div>
+        <div class="astro-time-item"><div class="astro-time-label">Sunset</div><div class="astro-time-val" style="color:#ff9a3c">7:36 PM</div></div>
+      </div>
+    </div>
+    <div class="astro-card">
+      <div class="astro-header"><span class="astro-icon">🌙</span><span class="astro-title">Moon Phase</span></div>
+      <div style="display:flex;align-items:center;justify-content:center;gap:28px;padding:16px 0;">
+        <div style="font-size:3rem;">🌔</div>
+        <div>
+          <div style="font-family:'Syne',sans-serif;font-weight:700;font-size:1rem;margin-bottom:4px;">Waxing Gibbous</div>
+          <div style="font-size:0.8rem;color:var(--muted);">76% illuminated</div>
+          <div style="font-size:0.75rem;color:var(--muted);margin-top:8px;">Full moon in <strong style="color:var(--text)">3 days</strong></div>
+        </div>
+      </div>
+      <div class="astro-times">
+        <div class="astro-time-item"><div class="astro-time-label">Moonrise</div><div class="astro-time-val" style="color:var(--ice)">2:18 PM</div></div>
+        <div class="astro-time-item"><div class="astro-time-label">Moonset</div><div class="astro-time-val" style="color:var(--muted)">3:44 AM</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Radar mini + Save -->
+  <div class="bottom-row">
+    <div class="radar-card">
+      <div class="radar-header">
+        <div>
+          <div style="font-family:'Syne',sans-serif;font-weight:700;font-size:0.95rem;">📡 Local Radar</div>
+          <div style="font-size:0.75rem;color:var(--muted);margin-top:2px;">Centered on New York, NY</div>
+        </div>
+        <button class="radar-view-btn">Full Radar →</button>
+      </div>
+      <div class="radar-mini">
+        <!-- Grid lines -->
+        <div class="r-grid-line" style="width:100%;height:1px;top:33%;"></div>
+        <div class="r-grid-line" style="width:100%;height:1px;top:66%;"></div>
+        <div class="r-grid-line" style="width:1px;height:100%;left:33%;"></div>
+        <div class="r-grid-line" style="width:1px;height:100%;left:66%;"></div>
+        <!-- Rings -->
+        <div class="r-ring" style="width:80px;height:80px;"></div>
+        <div class="r-ring" style="width:160px;height:160px;"></div>
+        <div class="r-ring" style="width:240px;height:240px;"></div>
+        <!-- Storm blobs -->
+        <div style="position:absolute;top:30%;left:55%;width:80px;height:50px;background:radial-gradient(ellipse,rgba(0,212,255,0.3),transparent);border-radius:50%;filter:blur(8px);animation:blip 4s ease-in-out infinite;"></div>
+        <div style="position:absolute;top:45%;left:40%;width:60px;height:40px;background:radial-gradient(ellipse,rgba(126,232,250,0.2),transparent);border-radius:50%;filter:blur(6px);animation:blip 3s ease-in-out 1s infinite;"></div>
+        <div style="position:absolute;top:20%;left:30%;width:100px;height:60px;background:radial-gradient(ellipse,rgba(255,107,53,0.25),transparent);border-radius:50%;filter:blur(10px);animation:blip 5s ease-in-out 2s infinite;"></div>
+        <!-- Sweep -->
+        <div class="r-sweep"></div>
+        <div class="r-center"></div>
+        <!-- Labels -->
+        <div class="r-label" style="top:8px;left:8px;">NW</div>
+        <div class="r-label" style="top:8px;right:8px;">NE</div>
+        <div class="r-label" style="bottom:8px;left:8px;">SW</div>
+        <div class="r-label" style="bottom:8px;right:8px;">SE</div>
+      </div>
+    </div>
+
+    <div class="save-card">
+      <div class="save-title">⭐ Save New York</div>
+      <div class="save-desc">Get personalized forecasts, severe weather alerts, and daily weather briefings for this location.</div>
+      <button class="save-btn">Save This Location — Free</button>
+      <div class="save-divider">or</div>
+      <button class="google-btn">🔵 Continue with Google</button>
+      <div class="perk-list">
+        <div class="perk">Daily morning weather brief</div>
+        <div class="perk">Severe weather push alerts</div>
+        <div class="perk">Up to 20 saved locations</div>
+        <div class="perk">No ads, no spam, ever</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// Rain animation
+const canvas = document.getElementById('rainCanvas');
+const ctx = canvas.getContext('2d');
+canvas.width = window.innerWidth; canvas.height = window.innerHeight;
+const drops = Array.from({length:120},()=>({x:Math.random()*canvas.width,y:Math.random()*canvas.height,speed:4+Math.random()*6,len:10+Math.random()*20,op:0.1+Math.random()*0.3}));
+function drawRain(){
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  drops.forEach(d=>{
+    ctx.beginPath();ctx.moveTo(d.x,d.y);ctx.lineTo(d.x-2,d.y+d.len);
+    ctx.strokeStyle=`rgba(100,180,255,${d.op})`;ctx.lineWidth=0.8;ctx.stroke();
+    d.y+=d.speed;if(d.y>canvas.height){d.y=-d.len;d.x=Math.random()*canvas.width;}
+  });
+  requestAnimationFrame(drawRain);
+}
+drawRain();
+window.addEventListener('resize',()=>{canvas.width=window.innerWidth;canvas.height=window.innerHeight;});
+</script>
+</body>
+</html>

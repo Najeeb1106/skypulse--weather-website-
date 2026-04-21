@@ -1,0 +1,126 @@
+.subscribe-section {
+  background: linear-gradient(135deg, rgba(255,58,92,0.07), rgba(255,107,53,0.04));
+  border: 1px solid rgba(255,58,92,0.2);
+  border-radius: 20px;
+  padding: 40px;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 40px;
+  align-items: center;
+  animation: fadeUp .6s .55s both;
+}
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.sub-title {
+  font-family: 'Syne', sans-serif;
+  font-size: 1.5rem;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  margin-bottom: 8px;
+}
+
+.sub-desc {
+  font-size: 0.9rem;
+  color: var(--muted);
+  max-width: 500px;
+  line-height: 1.6;
+  margin-bottom: 20px;
+}
+
+.sub-trust {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.trust-item {
+  font-size: 0.78rem;
+  color: var(--muted);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.trust-item::before {
+  content: '✓';
+  color: var(--green);
+  font-weight: 700;
+}
+
+.sub-form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-width: 280px;
+}
+
+.sub-input {
+  background: rgba(255,255,255,0.07);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 12px;
+  padding: 14px 18px;
+  color: var(--text);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.9rem;
+  outline: none;
+  transition: border-color .2s;
+}
+
+.sub-input:focus {
+  border-color: rgba(255,58,92,0.5);
+}
+
+.sub-input::placeholder {
+  color: var(--muted);
+}
+
+.sub-toggle-row {
+  display: flex;
+  gap: 8px;
+}
+
+.sub-toggle {
+  flex: 1;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.08);
+  color: var(--muted);
+  font-size: 0.78rem;
+  padding: 10px;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all .2s;
+  font-family: 'DM Sans', sans-serif;
+}
+
+.sub-toggle.on {
+  background: rgba(255,58,92,0.12);
+  border-color: rgba(255,58,92,0.3);
+  color: var(--red);
+}
+
+.sub-submit {
+  background: linear-gradient(135deg, var(--red), #c0202a);
+  border: none;
+  color: white;
+  font-family: 'Syne', sans-serif;
+  font-weight: 700;
+  font-size: 0.9rem;
+  padding: 14px;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: opacity .2s;
+}
+
+.sub-submit:hover {
+  opacity: .9;
+}
+
+@media(max-width: 900px) {
+  .subscribe-section {
+    grid-template-columns: 1fr;
+  }
+}

@@ -1,0 +1,21 @@
+/* Main page container for Severe Alerts */
+.alerts-page {
+  position: relative;
+  z-index: 1;
+  padding: 120px 48px 60px; /* Pushed down to clear the fixed Navbar */
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* Mobile Responsiveness */
+@media (max-width: 1366px) {
+  .alerts-page {
+    padding: 120px 24px 60px;
+  }
+}
+
+@media (max-width: 900px) {
+  .alerts-page {
+    padding: 100px 24px 40px;
+  }
+}

@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>SkyPulse — Climate & History</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --bg:#09080f;--surface:rgba(255,255,255,0.04);--border:rgba(255,255,255,0.07);
+  --gold:#ffd166;--amber:#ff9a3c;--cyan:#00d4ff;--ice:#7ee8fa;--green:#6ddc8b;
+  --text:#f5f0ff;--muted:#5a5070;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);overflow-x:hidden;}
+.bg-layer{position:fixed;inset:0;z-index:0;
+  background:radial-gradient(ellipse 90% 50% at 60% -10%,rgba(60,40,10,0.5) 0%,transparent 55%),
+  radial-gradient(ellipse 50% 40% at 10% 90%,rgba(40,20,5,0.4) 0%,transparent 50%),#09080f;}
+
+nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:18px 40px;background:rgba(9,8,15,0.85);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);}
+.logo{font-family:'Syne',sans-serif;font-weight:800;font-size:1.3rem;letter-spacing:-0.02em;display:flex;align-items:center;gap:8px;text-decoration:none;color:var(--text);}
+.logo-dot{width:28px;height:28px;background:linear-gradient(135deg,#00d4ff,#006fff);border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:15px;}
+.logo span{color:#00d4ff;}
+.nav-search-bar{display:flex;gap:8px;}
+.nav-input{background:rgba(255,255,255,0.06);border:1px solid var(--border);border-radius:10px;padding:10px 16px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:0.85rem;outline:none;width:220px;transition:border-color .2s;}
+.nav-input:focus{border-color:rgba(255,209,102,0.4);}
+.nav-input::placeholder{color:var(--muted);}
+.nav-search-btn{background:rgba(255,209,102,0.12);border:1px solid rgba(255,209,102,0.25);color:var(--gold);font-family:'DM Sans',sans-serif;font-size:0.85rem;font-weight:600;padding:10px 18px;border-radius:10px;cursor:pointer;transition:all .2s;}
+.nav-search-btn:hover{background:rgba(255,209,102,0.2);}
+
+.page{position:relative;z-index:1;padding:96px 40px 60px;max-width:1200px;margin:0 auto;}
+
+/* Header */
+.page-header{margin-bottom:36px;animation:fadeUp .7s .1s both;}
+@keyframes fadeUp{from{opacity:0;transform:translateY(20px);}to{opacity:1;transform:translateY(0);}}
+.eyebrow{font-size:0.7rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--gold);margin-bottom:10px;}
+.page-title{font-family:'Syne',sans-serif;font-size:clamp(2rem,5vw,3.5rem);font-weight:800;letter-spacing:-0.04em;line-height:1;margin-bottom:10px;}
+.page-sub{color:var(--muted);font-size:0.95rem;max-width:560px;}
+
+/* Best time card */
+.best-time-card{background:linear-gradient(135deg,rgba(255,209,102,0.09),rgba(255,107,53,0.05));border:1px solid rgba(255,209,102,0.2);border-radius:20px;padding:28px 32px;margin-bottom:28px;display:grid;grid-template-columns:1fr auto;gap:32px;align-items:center;animation:fadeUp .7s .2s both;}
+.bt-label{font-size:0.7rem;text-transform:uppercase;letter-spacing:.12em;color:var(--gold);margin-bottom:8px;}
+.bt-city{font-family:'Syne',sans-serif;font-size:1.5rem;font-weight:800;letter-spacing:-0.03em;margin-bottom:6px;}
+.bt-text{font-size:0.9rem;color:rgba(245,240,255,0.65);line-height:1.6;}
+.bt-months{display:flex;gap:8px;}
+.bt-month{background:rgba(255,209,102,0.12);border:1px solid rgba(255,209,102,0.25);color:var(--gold);font-size:0.78rem;font-weight:600;padding:8px 16px;border-radius:10px;}
+.bt-month.peak{background:rgba(255,209,102,0.25);border-color:rgba(255,209,102,0.5);}
+
+/* Monthly chart */
+.monthly-section{margin-bottom:28px;animation:fadeUp .7s .25s both;}
+.section-title{font-family:'Syne',sans-serif;font-size:0.7rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-bottom:16px;}
+.monthly-wrap{background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:28px;}
+.chart-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;}
+.chart-legend{display:flex;gap:16px;}
+.legend-item{display:flex;align-items:center;gap:6px;font-size:0.75rem;color:var(--muted);}
+.legend-dot{width:8px;height:8px;border-radius:50%;}
+.months-grid{display:grid;grid-template-columns:repeat(12,1fr);gap:8px;align-items:end;}
+.month-col{display:flex;flex-direction:column;align-items:center;gap:6px;}
+.month-bars{position:relative;width:100%;height:160px;display:flex;align-items:flex-end;justify-content:center;gap:2px;}
+.temp-bar-hi{border-radius:4px 4px 0 0;width:40%;background:linear-gradient(180deg,var(--amber),rgba(255,154,60,0.4));}
+.temp-bar-lo{border-radius:4px 4px 0 0;width:40%;background:linear-gradient(180deg,var(--cyan),rgba(0,212,255,0.4));}
+.rain-bar-m{position:absolute;bottom:0;width:100%;border-radius:4px 4px 0 0;background:rgba(100,168,240,0.25);border-bottom:none;}
+.month-name{font-size:0.62rem;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;}
+.month-hi{font-family:'Syne',sans-serif;font-size:0.7rem;font-weight:700;color:var(--amber);}
+.month-lo{font-family:'Syne',sans-serif;font-size:0.7rem;font-weight:700;color:var(--cyan);}
+
+/* Stats grid */
+.climate-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:28px;animation:fadeUp .7s .3s both;}
+.cstat{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:20px;text-align:center;transition:all .2s;}
+.cstat:hover{border-color:rgba(255,209,102,0.2);}
+.cstat-val{font-family:'Syne',sans-serif;font-size:1.8rem;font-weight:800;letter-spacing:-0.04em;}
+.cstat-label{font-size:0.7rem;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-top:4px;}
+
+/* Compare tool */
+.compare-tool{background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:28px;margin-bottom:28px;animation:fadeUp .7s .35s both;}
+.compare-grid{display:grid;grid-template-columns:1fr 40px 1fr;gap:16px;align-items:start;margin-top:20px;}
+.city-compare-card{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:14px;padding:20px;}
+.cc-city{font-family:'Syne',sans-serif;font-size:1rem;font-weight:700;margin-bottom:14px;display:flex;align-items:center;gap:8px;}
+.cc-row{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.04);}
+.cc-row:last-child{border-bottom:none;}
+.cc-label{font-size:0.78rem;color:var(--muted);}
+.cc-val{font-size:0.85rem;font-weight:500;}
+.vs-badge{display:flex;align-items:center;justify-content:center;width:40px;height:40px;background:var(--surface);border:1px solid var(--border);border-radius:50%;font-family:'Syne',sans-serif;font-size:0.7rem;font-weight:700;color:var(--muted);margin-top:60px;align-self:start;}
+
+/* Records */
+.records-section{margin-bottom:28px;animation:fadeUp .7s .4s both;}
+.records-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.record-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:20px;display:flex;align-items:center;gap:16px;}
+.rec-icon{font-size:2rem;flex-shrink:0;}
+.rec-val{font-family:'Syne',sans-serif;font-size:1.5rem;font-weight:800;letter-spacing:-0.03em;}
+.rec-label{font-size:0.75rem;color:var(--muted);margin-top:2px;}
+.rec-date{font-size:0.72rem;color:rgba(255,255,255,0.3);margin-top:4px;}
+
+/* Download CTA */
+.download-cta{background:linear-gradient(135deg,rgba(255,209,102,0.08),rgba(255,107,53,0.04));border:1px solid rgba(255,209,102,0.18);border-radius:20px;padding:36px;display:grid;grid-template-columns:1fr auto;gap:32px;align-items:center;animation:fadeUp .7s .45s both;}
+.dl-title{font-family:'Syne',sans-serif;font-size:1.4rem;font-weight:800;letter-spacing:-0.03em;margin-bottom:8px;}
+.dl-desc{font-size:0.875rem;color:var(--muted);line-height:1.6;margin-bottom:16px;}
+.dl-perks{display:flex;flex-direction:column;gap:6px;}
+.perk{font-size:0.8rem;color:rgba(245,240,255,0.6);display:flex;align-items:center;gap:8px;}
+.perk::before{content:'✓';color:var(--gold);}
+.dl-form{display:flex;flex-direction:column;gap:10px;min-width:260px;}
+.dl-input{background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.1);border-radius:12px;padding:13px 18px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:0.875rem;outline:none;transition:border-color .2s;}
+.dl-input:focus{border-color:rgba(255,209,102,0.4);}
+.dl-input::placeholder{color:var(--muted);}
+.dl-btn{background:linear-gradient(135deg,var(--gold),var(--amber));border:none;color:#000;font-family:'Syne',sans-serif;font-weight:700;font-size:0.9rem;padding:14px;border-radius:12px;cursor:pointer;transition:opacity .2s;}
+.dl-btn:hover{opacity:.9;}
+.pro-upsell{margin-top:10px;text-align:center;font-size:0.75rem;color:var(--muted);}
+.pro-upsell a{color:var(--gold);}
+
+@media(max-width:900px){
+  nav{padding:14px 20px;}
+  .nav-search-bar{display:none;}
+  .page{padding:80px 20px 40px;}
+  .best-time-card{grid-template-columns:1fr;}
+  .climate-stats{grid-template-columns:repeat(2,1fr);}
+  .compare-grid{grid-template-columns:1fr;}
+  .vs-badge{display:none;}
+  .records-grid{grid-template-columns:1fr;}
+  .download-cta{grid-template-columns:1fr;}
+  .months-grid{grid-template-columns:repeat(6,1fr);}
+}
+</style>
+</head>
+<body>
+<div class="bg-layer"></div>
+
+<nav>
+  <a href="#" class="logo"><div class="logo-dot">🌤</div>Sky<span>Pulse</span></a>
+  <div class="nav-search-bar">
+    <input class="nav-input" type="text" placeholder="Compare another city…" value="New York, USA"/>
+    <button class="nav-search-btn">Look Up →</button>
+  </div>
+</nav>
+
+<div class="page">
+
+  <!-- Header -->
+  <div class="page-header">
+    <div class="eyebrow">📊 Climate & History</div>
+    <h1 class="page-title">New York, USA<br>Climate Guide</h1>
+    <p class="page-sub">Monthly averages, historical records, and travel recommendations — everything you need to plan ahead.</p>
+  </div>
+
+  <!-- Best time to visit -->
+  <div class="best-time-card">
+    <div>
+      <div class="bt-label">✈️ Best Time to Visit</div>
+      <div class="bt-city">New York, New York</div>
+      <p class="bt-text">Visit in late spring (May–June) or early fall (September–October) for warm, dry days with comfortable temperatures between 18–26°C. Avoid July–August for crowds, and January–February for bitter cold.</p>
+    </div>
+    <div>
+      <div style="font-size:.7rem;color:var(--muted);text-transform:uppercase;letter-spacing:.1em;margin-bottom:10px;">Peak Months</div>
+      <div class="bt-months">
+        <div class="bt-month">May</div>
+        <div class="bt-month peak">Jun</div>
+        <div class="bt-month">Sep</div>
+        <div class="bt-month peak">Oct</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Monthly chart -->
+  <div class="monthly-section">
+    <div class="section-title">📅 Monthly Climate Averages</div>
+    <div class="monthly-wrap">
+      <div class="chart-header">
+        <div style="font-family:'Syne',sans-serif;font-size:.95rem;font-weight:700;">Temperature & Precipitation by Month</div>
+        <div class="chart-legend">
+          <div class="legend-item"><div class="legend-dot" style="background:var(--amber)"></div>High °C</div>
+          <div class="legend-item"><div class="legend-dot" style="background:var(--cyan)"></div>Low °C</div>
+          <div class="legend-item"><div class="legend-dot" style="background:rgba(100,168,240,0.4)"></div>Rain mm</div>
+        </div>
+      </div>
+      <div class="months-grid" id="monthsGrid"></div>
+    </div>
+  </div>
+
+  <!-- Climate stats -->
+  <div class="climate-stats">
+    <div class="cstat"><div class="cstat-val" style="color:var(--amber)">13.4°</div><div class="cstat-label">Annual Average</div></div>
+    <div class="cstat"><div class="cstat-val" style="color:var(--cyan)">1144mm</div><div class="cstat-label">Annual Rainfall</div></div>
+    <div class="cstat"><div class="cstat-val" style="color:var(--gold)">234</div><div class="cstat-label">Sunny Days/Year</div></div>
+    <div class="cstat"><div class="cstat-val" style="color:#c8a0ff)">24cm</div><div class="cstat-label">Annual Snowfall</div></div>
+  </div>
+
+  <!-- Compare tool -->
+  <div class="compare-tool">
+    <div style="font-family:'Syne',sans-serif;font-size:1rem;font-weight:700;margin-bottom:4px;">⚖️ City Climate Comparison</div>
+    <div style="font-size:.82rem;color:var(--muted);">Compare New York against another destination.</div>
+    <div class="compare-grid">
+      <div class="city-compare-card">
+        <div class="cc-city">🗽 New York, USA</div>
+        <div class="cc-row"><span class="cc-label">Summer High</span><span class="cc-val">29°C</span></div>
+        <div class="cc-row"><span class="cc-label">Winter Low</span><span class="cc-val">-3°C</span></div>
+        <div class="cc-row"><span class="cc-label">Annual Rain</span><span class="cc-val">1,144mm</span></div>
+        <div class="cc-row"><span class="cc-label">Sunny Days</span><span class="cc-val">234 days</span></div>
+        <div class="cc-row"><span class="cc-label">Best Month</span><span class="cc-val" style="color:var(--gold)">October</span></div>
+      </div>
+      <div class="vs-badge">VS</div>
+      <div class="city-compare-card">
+        <div class="cc-city">🗼 Paris, France</div>
+        <div class="cc-row"><span class="cc-label">Summer High</span><span class="cc-val">25°C</span></div>
+        <div class="cc-row"><span class="cc-label">Winter Low</span><span class="cc-val">3°C</span></div>
+        <div class="cc-row"><span class="cc-label">Annual Rain</span><span class="cc-val">641mm</span></div>
+        <div class="cc-row"><span class="cc-label">Sunny Days</span><span class="cc-val">197 days</span></div>
+        <div class="cc-row"><span class="cc-label">Best Month</span><span class="cc-val" style="color:var(--gold)">June</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Records -->
+  <div class="records-section">
+    <div class="section-title">🏆 All-Time Records — New York</div>
+    <div class="records-grid">
+      <div class="record-card">
+        <span class="rec-icon">🌡️</span>
+        <div><div class="rec-val" style="color:#ff7060">41.1°C</div><div class="rec-label">All-Time Record High</div><div class="rec-date">July 9, 1936</div></div>
+      </div>
+      <div class="record-card">
+        <span class="rec-icon">🥶</span>
+        <div><div class="rec-val" style="color:var(--cyan)">-26.1°C</div><div class="rec-label">All-Time Record Low</div><div class="rec-date">February 9, 1934</div></div>
+      </div>
+      <div class="record-card">
+        <span class="rec-icon">🌧️</span>
+        <div><div class="rec-val" style="color:#64a8ff">183mm</div><div class="rec-label">Most Rain in 24 Hours</div><div class="rec-date">August 22, 2021</div></div>
+      </div>
+      <div class="record-card">
+        <span class="rec-icon">❄️</span>
+        <div><div class="rec-val" style="color:#c0f0ff">68cm</div><div class="rec-label">Most Snow in 24 Hours</div><div class="rec-date">January 23, 2016</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Download CTA -->
+  <div class="download-cta">
+    <div>
+      <div class="dl-title">📥 Download the New York Climate Report</div>
+      <p class="dl-desc">Get the full PDF — monthly breakdowns, travel guide, historical charts, and 5-year trend analysis. Free download.</p>
+      <div class="dl-perks">
+        <div class="perk">Monthly averages for all 12 months</div>
+        <div class="perk">30-year historical trend charts</div>
+        <div class="perk">Travel recommendation guide</div>
+        <div class="perk">Record highs, lows, and extremes</div>
+      </div>
+    </div>
+    <div class="dl-form">
+      <input class="dl-input" type="email" placeholder="your@email.com"/>
+      <button class="dl-btn">📄 Download Free Report</button>
+      <div class="pro-upsell">Need bulk data or multiple cities? <a href="#">SkyPulse Pro →</a></div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// Monthly data: [high°C, low°C, rain_mm]
+const months=[
+  {n:'Jan',hi:3,lo:-3,rain:92},
+  {n:'Feb',hi:5,lo:-2,rain:81},
+  {n:'Mar',hi:10,lo:3,rain:102},
+  {n:'Apr',hi:16,lo:8,rain:97},
+  {n:'May',hi:22,lo:14,rain:101},
+  {n:'Jun',hi:27,lo:19,rain:101},
+  {n:'Jul',hi:29,lo:22,rain:116},
+  {n:'Aug',hi:28,lo:21,rain:104},
+  {n:'Sep',hi:24,lo:17,rain:91},
+  {n:'Oct',hi:18,lo:11,rain:87},
+  {n:'Nov',hi:12,lo:5,rain:89},
+  {n:'Dec',hi:6,lo:0,rain:98}
+];
+const maxH=35,maxR=130;
+const grid=document.getElementById('monthsGrid');
+months.forEach(m=>{
+  const col=document.createElement('div');col.className='month-col';
+  col.innerHTML=`
+    <div class="month-bars" style="position:relative;">
+      <div style="position:absolute;bottom:0;left:0;right:0;height:${(m.rain/maxR)*100}px;background:rgba(100,168,240,0.15);border-radius:4px 4px 0 0;"></div>
+      <div class="temp-bar-hi" style="height:${((m.hi+5)/maxR)*120}px;"></div>
+      <div class="temp-bar-lo" style="height:${((m.lo+10)/maxR)*80}px;opacity:0.7;"></div>
+    </div>
+    <div class="month-name">${m.n}</div>
+    <div class="month-hi">${m.hi}°</div>
+    <div class="month-lo">${m.lo}°</div>
+  `;
+  grid.appendChild(col);
+});
+</script>
+</body>
+</html>

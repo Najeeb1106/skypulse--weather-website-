@@ -1,0 +1,115 @@
+.compare-tool {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 28px;
+  margin-bottom: 28px;
+  animation: fadeUp .7s .35s both;
+}
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.compare-header-title {
+  font-family: 'Syne', sans-serif;
+  font-size: 1rem;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+
+.compare-sub {
+  font-size: .82rem;
+  color: var(--muted);
+}
+
+.climate-compare-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+  align-items: stretch;
+  margin-top: 24px;
+}
+
+.city-compare-card {
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 16px;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  transition: all 0.3s ease;
+}
+
+.active-city-card {
+  background: rgba(255,255,255,0.06);
+  border-color: var(--accent);
+  box-shadow: 0 10px 30px -10px rgba(0,0,0,0.3);
+}
+
+.cc-city {
+  font-family: 'Syne', sans-serif;
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.cc-status-row {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  margin-bottom: 20px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+}
+
+.cc-live-temp {
+  font-size: 1.8rem;
+  font-weight: 800;
+  font-family: 'Syne', sans-serif;
+  color: var(--text);
+}
+
+.cc-live-cond {
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--muted);
+}
+
+.cc-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 0;
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+}
+
+.cc-row:last-child {
+  border-bottom: none;
+}
+
+.cc-label {
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+
+.cc-val {
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+@media(max-width: 1100px) {
+  .climate-compare-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media(max-width: 700px) {
+  .climate-compare-grid {
+    grid-template-columns: 1fr;
+  }
+}

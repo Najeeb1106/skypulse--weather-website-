@@ -1,0 +1,57 @@
+/* Animated background base */
+.sky-bg {
+  position: fixed;
+  inset: 0;
+  z-index: -2; /* Pushed back so content sits on top */
+  background: radial-gradient(ellipse 120% 80% at 60% -10%, #0d2b5e 0%, transparent 60%),
+              radial-gradient(ellipse 80% 60% at -10% 80%, #041830 0%, transparent 50%),
+              var(--sky-deep);
+}
+
+/* Stars */
+.stars {
+  position: fixed;
+  inset: 0;
+  z-index: -2;
+  pointer-events: none;
+}
+.star {
+  position: absolute;
+  background: white;
+  border-radius: 50%;
+  animation: twinkle var(--dur, 3s) ease-in-out infinite;
+  animation-delay: var(--delay, 0s);
+}
+@keyframes twinkle {
+  0%, 100% { opacity: var(--max-op, 0.7); transform: scale(1); }
+  50% { opacity: 0.1; transform: scale(0.5); }
+}
+
+/* Clouds */
+.clouds {
+  position: fixed;
+  inset: 0;
+  z-index: -2;
+  pointer-events: none;
+  overflow: hidden;
+}
+.cloud {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(60px);
+  animation: driftCloud linear infinite;
+  opacity: 0.06;
+}
+@keyframes driftCloud {
+  from { transform: translateX(0); }
+  to { transform: translateX(calc(100vw + 600px)); }
+}
+
+/* Glow Orbs */
+.glow-orb {
+  position: fixed;
+  border-radius: 50%;
+  filter: blur(100px);
+  pointer-events: none;
+  z-index: -2;
+}

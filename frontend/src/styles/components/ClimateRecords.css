@@ -1,0 +1,65 @@
+.records-section {
+  margin-bottom: 28px;
+  animation: fadeUp .7s .4s both;
+}
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.section-title {
+  font-family: 'Syne', sans-serif;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 16px;
+}
+
+.records-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.record-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 20px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.rec-icon {
+  font-size: 2rem;
+  flex-shrink: 0;
+}
+
+.rec-val {
+  font-family: 'Syne', sans-serif;
+  font-size: 1.5rem;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+}
+
+.rec-label {
+  font-size: 0.75rem;
+  color: var(--muted);
+  margin-top: 2px;
+}
+
+.rec-date {
+  font-size: 0.72rem;
+  color: rgba(255,255,255,0.3);
+  margin-top: 4px;
+}
+
+@media(max-width: 900px) {
+  .records-grid {
+    grid-template-columns: 1fr;
+  }
+}

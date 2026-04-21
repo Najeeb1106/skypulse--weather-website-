@@ -1,0 +1,133 @@
+.aqi-hero {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 48px;
+  align-items: center;
+  margin-bottom: 36px;
+  animation: fadeUp .7s .1s both;
+}
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.aqi-gauge-wrap {
+  position: relative;
+  width: 240px;
+  height: 240px;
+  flex-shrink: 0;
+}
+
+.aqi-gauge-wrap canvas {
+  position: absolute;
+  inset: 0;
+}
+
+.gauge-center {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.gauge-num {
+  font-family: 'Syne', sans-serif;
+  font-size: 3.5rem;
+  font-weight: 800;
+  letter-spacing: -0.05em;
+  color: var(--green);
+  line-height: 1;
+}
+
+.gauge-label {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: .1em;
+  color: var(--green);
+  opacity: .7;
+  margin-top: 4px;
+}
+
+.gauge-status {
+  background: rgba(109,220,139,0.12);
+  border: 1px solid rgba(109,220,139,0.3);
+  color: var(--green);
+  font-size: 0.8rem;
+  font-weight: 600;
+  padding: 5px 14px;
+  border-radius: 100px;
+  margin-top: 10px;
+}
+
+.aqi-location {
+  font-size: 0.8rem;
+  color: var(--muted);
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.aqi-city {
+  font-family: 'Syne', sans-serif;
+  font-size: clamp(1.8rem, 4vw, 3rem);
+  font-weight: 800;
+  letter-spacing: -0.04em;
+  margin-bottom: 12px;
+}
+
+.aqi-desc {
+  font-size: 1rem;
+  color: rgba(194,255,224,0.7);
+  line-height: 1.6;
+  max-width: 480px;
+  margin-bottom: 24px;
+}
+
+.health-rec {
+  background: rgba(109,220,139,0.07);
+  border: 1px solid rgba(109,220,139,0.15);
+  border-radius: 14px;
+  padding: 18px 22px;
+}
+
+.rec-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.rec-header h3 {
+  font-family: 'Syne', sans-serif;
+  font-size: 0.9rem;
+  font-weight: 700;
+}
+
+.rec-items {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.rec-item {
+  font-size: 0.83rem;
+  color: rgba(194,255,224,0.75);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.rec-item::before {
+  content: '→';
+  color: var(--green);
+}
+
+@media(max-width: 900px) {
+  .aqi-hero {
+    grid-template-columns: 1fr;
+  }
+}

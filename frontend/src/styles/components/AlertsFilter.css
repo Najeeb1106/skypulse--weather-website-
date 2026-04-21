@@ -1,0 +1,64 @@
+.filter-bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 28px;
+  flex-wrap: wrap;
+  animation: fadeUp .6s .2s both;
+}
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.filter-label {
+  font-size: 0.72rem;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: .1em;
+  margin-right: 4px;
+}
+
+.filter-chip {
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.08);
+  color: var(--muted);
+  font-size: 0.8rem;
+  padding: 8px 16px;
+  border-radius: 100px;
+  cursor: pointer;
+  transition: all .2s;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.filter-chip:hover {
+  border-color: rgba(255,255,255,0.2);
+  color: var(--text);
+}
+
+.filter-chip.active-red {
+  background: rgba(255,58,92,0.12);
+  border-color: rgba(255,58,92,0.35);
+  color: var(--red);
+}
+
+.filter-chip.active-orange {
+  background: rgba(255,107,53,0.1);
+  border-color: rgba(255,107,53,0.3);
+  color: var(--orange);
+}
+
+.filter-chip.active-yellow {
+  background: rgba(255,209,102,0.08);
+  border-color: rgba(255,209,102,0.25);
+  color: var(--yellow);
+}
+
+.filter-chip.active-blue {
+  background: rgba(77,166,255,0.08);
+  border-color: rgba(77,166,255,0.25);
+  color: var(--blue);
+}

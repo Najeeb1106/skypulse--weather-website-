@@ -1,0 +1,33 @@
+.page-header {
+  margin-bottom: 36px;
+  animation: fadeUp .7s .1s both;
+}
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.eyebrow {
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: 10px;
+}
+
+.page-title {
+  font-family: 'Syne', sans-serif;
+  font-size: clamp(2rem, 5vw, 3.5rem);
+  font-weight: 800;
+  letter-spacing: -0.04em;
+  line-height: 1;
+  margin-bottom: 10px;
+}
+
+.page-sub {
+  color: var(--muted);
+  font-size: 0.95rem;
+  max-width: 560px;
+}

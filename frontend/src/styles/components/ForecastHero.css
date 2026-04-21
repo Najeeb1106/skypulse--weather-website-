@@ -1,0 +1,112 @@
+.forecast-hero {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 40px;
+  align-items: start;
+  margin-bottom: 32px;
+  animation: fadeUp .7s .1s both;
+}
+
+.location-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+
+.loc-pin {
+  color: var(--cyan);
+  font-size: 1rem;
+}
+
+.location-name {
+  font-family: 'Syne', sans-serif;
+  font-size: clamp(2rem, 5vw, 3.5rem);
+  font-weight: 800;
+  letter-spacing: -0.04em;
+  line-height: 1;
+}
+
+.location-sub {
+  color: var(--muted);
+  font-size: 0.875rem;
+  margin-top: 6px;
+}
+
+.update-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(109,220,139,0.1);
+  border: 1px solid rgba(109,220,139,0.25);
+  color: var(--green);
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  padding: 5px 12px;
+  border-radius: 100px;
+  margin-top: 12px;
+}
+
+.upd-dot {
+  width: 5px;
+  height: 5px;
+  background: var(--green);
+  border-radius: 50%;
+  animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(109,220,139,0.5); }
+  50% { box-shadow: 0 0 0 5px rgba(109,220,139,0); }
+}
+
+.temp-display {
+  text-align: right;
+}
+
+.temp-big {
+  font-family: 'Syne', sans-serif;
+  font-size: clamp(4rem, 10vw, 8rem);
+  font-weight: 800;
+  letter-spacing: -0.06em;
+  line-height: 1;
+  background: linear-gradient(160deg, #fff 40%, var(--accent-ice));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.temp-condition {
+  font-size: 1.1rem;
+  color: var(--muted);
+  margin-top: -4px;
+  text-align: right;
+}
+
+.temp-range {
+  font-size: 0.875rem;
+  color: var(--muted);
+  margin-top: 8px;
+}
+
+.temp-range strong {
+  color: var(--text);
+}
+
+@media(max-width: 900px) {
+  .forecast-hero {
+    grid-template-columns: 1fr;
+  }
+  .temp-display {
+    text-align: left;
+  }
+}
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(24px); }
+  to { opacity: 1; transform: translateY(0); }
+}

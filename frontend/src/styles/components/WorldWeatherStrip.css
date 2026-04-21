@@ -1,0 +1,125 @@
+/* Weather Strip Container */
+.weather-strip {
+  position: relative;
+  z-index: 1;
+  padding: 0 48px 80px;
+}
+
+.strip-title {
+  font-family: 'Syne', sans-serif;
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--text-muted, #7a8fad);
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+/* Grid Layout */
+.weather-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 16px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* Individual Glassmorphism Card */
+.weather-card {
+  background: var(--glass, rgba(255, 255, 255, 0.04));
+  border: 1px solid var(--glass-border, rgba(255, 255, 255, 0.08));
+  border-radius: 20px;
+  padding: 24px 20px;
+  /* Allows clicking through to interactive cursor if needed */
+  cursor: pointer; 
+  transition: transform 0.3s, border-color 0.3s, box-shadow 0.3s;
+  position: relative;
+  overflow: hidden;
+  /* Utilizing the --i variable passed from React inline styles */
+  animation: fadeUp 0.6s calc(var(--i) * 0.1s + 1.2s) cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.weather-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(0, 212, 255, 0.05) 0%, transparent 60%);
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.weather-card:hover { 
+  transform: translateY(-4px); 
+  border-color: rgba(0, 212, 255, 0.25); 
+  box-shadow: var(--glow-cyan, 0 0 40px rgba(0, 212, 255, 0.2)); 
+}
+
+.weather-card:hover::before { 
+  opacity: 1; 
+}
+
+/* Card Typography & Layout */
+.card-city { 
+  font-size: 0.85rem; 
+  color: var(--text-muted, #7a8fad); 
+  margin-bottom: 4px; 
+}
+
+.card-country { 
+  font-size: 0.7rem; 
+  color: rgba(122, 143, 173, 0.6); 
+  text-transform: uppercase; 
+  letter-spacing: 0.1em; 
+}
+
+.card-temp {
+  font-family: 'Syne', sans-serif;
+  font-size: 2.6rem;
+  font-weight: 700;
+  line-height: 1;
+  margin: 12px 0 4px;
+  letter-spacing: -0.03em;
+}
+
+.card-condition { 
+  font-size: 0.8rem; 
+  color: var(--text-muted, #7a8fad); 
+}
+
+.card-icon { 
+  font-size: 2rem; 
+  margin-bottom: 8px; 
+  display: block; 
+}
+
+.card-details { 
+  display: flex; 
+  gap: 16px; 
+  margin-top: 16px; 
+}
+
+.card-detail { 
+  font-size: 0.72rem; 
+  color: var(--text-muted, #7a8fad); 
+}
+
+.card-detail strong { 
+  display: block; 
+  color: var(--text-primary, #f0f4ff); 
+  font-weight: 500; 
+  font-size: 0.85rem; 
+}
+
+/* Temperature Color States */
+.hot { color: #ff7043; }
+.cold { color: #7ee8fa; }
+.mild { color: #a8d8a8; }
+.stormy { color: #c9b8ff; }
+
+/* Responsive adjustments */
+@media (max-width: 900px) {
+  .weather-strip { 
+    padding: 0 24px 60px; 
+  }
+}

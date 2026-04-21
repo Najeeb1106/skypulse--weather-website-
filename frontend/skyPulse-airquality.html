@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>SkyPulse — Air Quality Index</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --bg:#040f0a;--surface:rgba(255,255,255,0.04);--border:rgba(255,255,255,0.07);
+  --green:#6ddc8b;--mint:#c2ffe0;--yellow:#ffd166;--orange:#ff9a3c;--red:#ff5555;--purple:#c060ff;
+  --text:#eef8f2;--muted:#4a7060;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);overflow-x:hidden;}
+.bg-layer{position:fixed;inset:0;z-index:0;
+  background:radial-gradient(ellipse 80% 50% at 40% -5%,rgba(0,60,30,0.6) 0%,transparent 60%),
+  radial-gradient(ellipse 50% 40% at 80% 70%,rgba(0,40,20,0.4) 0%,transparent 50%),#040f0a;}
+
+/* Floating particles */
+.particle{position:fixed;border-radius:50%;pointer-events:none;z-index:0;animation:floatUp linear infinite;}
+@keyframes floatUp{from{transform:translateY(100vh) rotate(0deg);opacity:0;}10%{opacity:1;}90%{opacity:0.3;}to{transform:translateY(-100px) rotate(360deg);opacity:0;}}
+
+nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:18px 40px;background:rgba(4,15,10,0.85);backdrop-filter:blur(20px);border-bottom:1px solid rgba(109,220,139,0.08);}
+.logo{font-family:'Syne',sans-serif;font-weight:800;font-size:1.3rem;letter-spacing:-0.02em;display:flex;align-items:center;gap:8px;text-decoration:none;color:var(--text);}
+.logo-dot{width:28px;height:28px;background:linear-gradient(135deg,#00d4ff,#006fff);border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:15px;}
+.logo span{color:#00d4ff;}
+.nav-aqi-badge{display:flex;align-items:center;gap:10px;background:rgba(109,220,139,0.1);border:1px solid rgba(109,220,139,0.25);border-radius:100px;padding:8px 18px;}
+.aqi-live{font-size:0.7rem;color:var(--green);font-weight:700;letter-spacing:.1em;text-transform:uppercase;}
+.aqi-val{font-family:'Syne',sans-serif;font-size:1rem;font-weight:800;color:var(--green);}
+
+.page{position:relative;z-index:1;padding:96px 40px 60px;max-width:1200px;margin:0 auto;}
+
+/* Hero AQI display */
+.aqi-hero{display:grid;grid-template-columns:auto 1fr;gap:48px;align-items:center;margin-bottom:36px;animation:fadeUp .7s .1s both;}
+@keyframes fadeUp{from{opacity:0;transform:translateY(20px);}to{opacity:1;transform:translateY(0);}}
+
+.aqi-gauge-wrap{position:relative;width:240px;height:240px;flex-shrink:0;}
+.aqi-gauge-wrap canvas{position:absolute;inset:0;}
+.gauge-center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;}
+.gauge-num{font-family:'Syne',sans-serif;font-size:3.5rem;font-weight:800;letter-spacing:-0.05em;color:var(--green);line-height:1;}
+.gauge-label{font-size:0.75rem;text-transform:uppercase;letter-spacing:.1em;color:var(--green);opacity:.7;margin-top:4px;}
+.gauge-status{background:rgba(109,220,139,0.12);border:1px solid rgba(109,220,139,0.3);color:var(--green);font-size:0.8rem;font-weight:600;padding:5px 14px;border-radius:100px;margin-top:10px;}
+
+.aqi-info{}
+.aqi-location{font-size:0.8rem;color:var(--muted);margin-bottom:8px;display:flex;align-items:center;gap:6px;}
+.aqi-city{font-family:'Syne',sans-serif;font-size:clamp(1.8rem,4vw,3rem);font-weight:800;letter-spacing:-0.04em;margin-bottom:12px;}
+.aqi-desc{font-size:1rem;color:rgba(194,255,224,0.7);line-height:1.6;max-width:480px;margin-bottom:24px;}
+.health-rec{background:rgba(109,220,139,0.07);border:1px solid rgba(109,220,139,0.15);border-radius:14px;padding:18px 22px;}
+.rec-header{display:flex;align-items:center;gap:8px;margin-bottom:10px;}
+.rec-header h3{font-family:'Syne',sans-serif;font-size:0.9rem;font-weight:700;}
+.rec-items{display:flex;flex-direction:column;gap:6px;}
+.rec-item{font-size:0.83rem;color:rgba(194,255,224,0.75);display:flex;align-items:center;gap:8px;}
+.rec-item::before{content:'→';color:var(--green);}
+
+/* Pollutants grid */
+.pollutants-section{margin-bottom:32px;animation:fadeUp .7s .25s both;}
+.section-title{font-family:'Syne',sans-serif;font-size:0.7rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-bottom:16px;}
+.poll-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;}
+.poll-card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:20px;transition:transform .2s,border-color .2s;}
+.poll-card:hover{transform:translateY(-2px);border-color:rgba(109,220,139,0.2);}
+.poll-name{font-size:0.7rem;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin-bottom:6px;}
+.poll-chemical{font-family:'Syne',sans-serif;font-size:1rem;font-weight:700;margin-bottom:12px;}
+.poll-bar-track{height:6px;background:rgba(255,255,255,0.06);border-radius:3px;margin-bottom:8px;overflow:hidden;}
+.poll-bar-fill{height:100%;border-radius:3px;transition:width 1s ease;}
+.poll-value{display:flex;justify-content:space-between;align-items:center;}
+.poll-num{font-family:'Syne',sans-serif;font-size:1.1rem;font-weight:700;}
+.poll-unit{font-size:0.7rem;color:var(--muted);}
+.poll-status{font-size:0.7rem;font-weight:600;padding:3px 10px;border-radius:100px;}
+.status-good{background:rgba(109,220,139,0.12);color:var(--green);border:1px solid rgba(109,220,139,0.25);}
+.status-mod{background:rgba(255,209,102,0.1);color:var(--yellow);border:1px solid rgba(255,209,102,0.25);}
+.status-unhealthy{background:rgba(255,85,85,0.1);color:var(--red);border:1px solid rgba(255,85,85,0.25);}
+
+/* Hourly AQI chart */
+.chart-section{margin-bottom:32px;animation:fadeUp .7s .3s both;}
+.chart-wrap{background:var(--surface);border:1px solid var(--border);border-radius:18px;padding:24px;}
+.chart-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;}
+.chart-title{font-family:'Syne',sans-serif;font-size:1rem;font-weight:700;}
+.chart-tabs{display:flex;gap:6px;}
+.chart-tab{background:transparent;border:1px solid transparent;color:var(--muted);font-size:0.75rem;padding:6px 12px;border-radius:8px;cursor:pointer;transition:all .2s;font-family:'DM Sans',sans-serif;}
+.chart-tab.active{background:rgba(109,220,139,0.1);border-color:rgba(109,220,139,0.25);color:var(--green);}
+.bars{display:flex;align-items:flex-end;gap:8px;height:120px;padding-bottom:8px;}
+.bar-wrap{flex:1;display:flex;flex-direction:column;align-items:center;gap:6px;}
+.bar{border-radius:6px 6px 0 0;width:100%;transition:opacity .2s;cursor:pointer;position:relative;}
+.bar:hover{opacity:.8;}
+.bar-time{font-size:0.62rem;color:var(--muted);text-align:center;}
+.bar-val{font-size:0.65rem;color:var(--text);text-align:center;font-weight:500;}
+
+/* Comparison */
+.compare-section{margin-bottom:32px;animation:fadeUp .7s .35s both;}
+.compare-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;}
+.compare-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:18px;text-align:center;transition:all .2s;cursor:pointer;}
+.compare-card:hover{border-color:rgba(109,220,139,0.2);}
+.compare-card.highlight{border-color:rgba(109,220,139,0.35);background:rgba(109,220,139,0.06);}
+.comp-city{font-size:0.78rem;font-weight:500;margin-bottom:4px;}
+.comp-country{font-size:0.65rem;color:var(--muted);}
+.comp-aqi{font-family:'Syne',sans-serif;font-size:2rem;font-weight:800;letter-spacing:-0.04em;margin:10px 0 6px;}
+.comp-badge{font-size:0.68rem;font-weight:600;padding:3px 10px;border-radius:100px;}
+
+/* Newsletter CTA */
+.newsletter{background:linear-gradient(135deg,rgba(109,220,139,0.08),rgba(0,80,40,0.06));border:1px solid rgba(109,220,139,0.18);border-radius:20px;padding:36px;display:grid;grid-template-columns:1fr auto;gap:32px;align-items:center;animation:fadeUp .7s .45s both;}
+.nl-title{font-family:'Syne',sans-serif;font-size:1.4rem;font-weight:800;letter-spacing:-0.03em;margin-bottom:8px;}
+.nl-desc{font-size:0.875rem;color:var(--muted);line-height:1.6;}
+.nl-form{display:flex;gap:10px;}
+.nl-input{background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.1);border-radius:12px;padding:14px 18px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:0.875rem;outline:none;flex:1;min-width:200px;transition:border-color .2s;}
+.nl-input:focus{border-color:rgba(109,220,139,0.4);}
+.nl-input::placeholder{color:var(--muted);}
+.nl-btn{background:linear-gradient(135deg,var(--green),#20a060);border:none;color:#000;font-family:'Syne',sans-serif;font-weight:700;font-size:0.875rem;padding:14px 24px;border-radius:12px;cursor:pointer;white-space:nowrap;transition:opacity .2s;}
+.nl-btn:hover{opacity:.9;}
+
+@media(max-width:900px){
+  nav{padding:14px 20px;}
+  .page{padding:80px 20px 40px;}
+  .aqi-hero{grid-template-columns:1fr;}
+  .poll-grid{grid-template-columns:repeat(2,1fr);}
+  .compare-grid{grid-template-columns:repeat(2,1fr);}
+  .newsletter{grid-template-columns:1fr;}
+  .nl-form{flex-direction:column;}
+}
+</style>
+</head>
+<body>
+<div class="bg-layer"></div>
+
+<nav>
+  <a href="#" class="logo"><div class="logo-dot">🌤</div>Sky<span>Pulse</span></a>
+  <div class="nav-aqi-badge">
+    <span class="aqi-live">AQI</span>
+    <span class="aqi-val">42</span>
+    <span style="font-size:.75rem;color:var(--green);">Good · New York</span>
+  </div>
+</nav>
+
+<div class="page">
+
+  <!-- Hero -->
+  <div class="aqi-hero">
+    <div class="aqi-gauge-wrap">
+      <canvas id="gaugeCanvas" width="240" height="240"></canvas>
+      <div class="gauge-center">
+        <div class="gauge-num">42</div>
+        <div class="gauge-label">AQI Score</div>
+        <div class="gauge-status">✓ Good</div>
+      </div>
+    </div>
+    <div class="aqi-info">
+      <div class="aqi-location">📍 New York, NY · Updated 8 min ago</div>
+      <h1 class="aqi-city">Air Quality — Good</h1>
+      <p class="aqi-desc">Air quality is satisfactory and poses little or no risk. It's a great day to be outdoors. Enjoy your run, open the windows, and breathe easy.</p>
+      <div class="health-rec">
+        <div class="rec-header"><span>💡</span><h3>Health Recommendations</h3></div>
+        <div class="rec-items">
+          <div class="rec-item">Ideal for all outdoor activities including jogging, cycling, and sports</div>
+          <div class="rec-item">Sensitive individuals may still want to limit prolonged exertion</div>
+          <div class="rec-item">Air quality typically improves further after 6 PM tonight</div>
+          <div class="rec-item">Pollen count: Moderate (Tree pollen high in Central Park area)</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Pollutants -->
+  <div class="pollutants-section">
+    <div class="section-title">🔬 Pollutant Breakdown</div>
+    <div class="poll-grid">
+      <div class="poll-card">
+        <div class="poll-name">Fine Particles</div>
+        <div class="poll-chemical">PM₂.₅</div>
+        <div class="poll-bar-track"><div class="poll-bar-fill" style="width:22%;background:linear-gradient(90deg,#6ddc8b,#a0e8b0);"></div></div>
+        <div class="poll-value"><div><div class="poll-num" style="color:var(--green)">8.2</div><div class="poll-unit">µg/m³</div></div><span class="poll-status status-good">Good</span></div>
+      </div>
+      <div class="poll-card">
+        <div class="poll-name">Coarse Particles</div>
+        <div class="poll-chemical">PM₁₀</div>
+        <div class="poll-bar-track"><div class="poll-bar-fill" style="width:35%;background:linear-gradient(90deg,#6ddc8b,#c0e850);"></div></div>
+        <div class="poll-value"><div><div class="poll-num" style="color:var(--green)">24</div><div class="poll-unit">µg/m³</div></div><span class="poll-status status-good">Good</span></div>
+      </div>
+      <div class="poll-card">
+        <div class="poll-name">Nitrogen Dioxide</div>
+        <div class="poll-chemical">NO₂</div>
+        <div class="poll-bar-track"><div class="poll-bar-fill" style="width:48%;background:linear-gradient(90deg,#ffd166,#ffe060);"></div></div>
+        <div class="poll-value"><div><div class="poll-num" style="color:var(--yellow)">34</div><div class="poll-unit">µg/m³</div></div><span class="poll-status status-mod">Moderate</span></div>
+      </div>
+      <div class="poll-card">
+        <div class="poll-name">Ozone</div>
+        <div class="poll-chemical">O₃</div>
+        <div class="poll-bar-track"><div class="poll-bar-fill" style="width:30%;background:linear-gradient(90deg,#6ddc8b,#80ffa0);"></div></div>
+        <div class="poll-value"><div><div class="poll-num" style="color:var(--green)">45</div><div class="poll-unit">µg/m³</div></div><span class="poll-status status-good">Good</span></div>
+      </div>
+      <div class="poll-card">
+        <div class="poll-name">Sulfur Dioxide</div>
+        <div class="poll-chemical">SO₂</div>
+        <div class="poll-bar-track"><div class="poll-bar-fill" style="width:12%;background:linear-gradient(90deg,#6ddc8b,#a0ffd0);"></div></div>
+        <div class="poll-value"><div><div class="poll-num" style="color:var(--green)">4</div><div class="poll-unit">µg/m³</div></div><span class="poll-status status-good">Good</span></div>
+      </div>
+      <div class="poll-card">
+        <div class="poll-name">Carbon Monoxide</div>
+        <div class="poll-chemical">CO</div>
+        <div class="poll-bar-track"><div class="poll-bar-fill" style="width:18%;background:linear-gradient(90deg,#6ddc8b,#b0eecc);"></div></div>
+        <div class="poll-value"><div><div class="poll-num" style="color:var(--green)">0.3</div><div class="poll-unit">mg/m³</div></div><span class="poll-status status-good">Good</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Chart -->
+  <div class="chart-section">
+    <div class="chart-wrap">
+      <div class="chart-header">
+        <div class="chart-title">📈 AQI Trend — Today</div>
+        <div class="chart-tabs">
+          <button class="chart-tab active">24h</button>
+          <button class="chart-tab">7 days</button>
+          <button class="chart-tab">30 days</button>
+        </div>
+      </div>
+      <div class="bars" id="aqiBars"></div>
+    </div>
+  </div>
+
+  <!-- Comparison -->
+  <div class="compare-section">
+    <div class="section-title">🌍 How Does Your City Compare Right Now?</div>
+    <div class="compare-grid">
+      <div class="compare-card highlight">
+        <div class="comp-city">New York</div><div class="comp-country">🇺🇸 USA</div>
+        <div class="comp-aqi" style="color:var(--green)">42</div>
+        <span class="comp-badge status-good">Good</span>
+      </div>
+      <div class="compare-card">
+        <div class="comp-city">London</div><div class="comp-country">🇬🇧 UK</div>
+        <div class="comp-aqi" style="color:var(--yellow)">68</div>
+        <span class="comp-badge status-mod">Moderate</span>
+      </div>
+      <div class="compare-card">
+        <div class="comp-city">Delhi</div><div class="comp-country">🇮🇳 India</div>
+        <div class="comp-aqi" style="color:var(--red)">178</div>
+        <span class="comp-badge status-unhealthy">Unhealthy</span>
+      </div>
+      <div class="compare-card">
+        <div class="comp-city">Sydney</div><div class="comp-country">🇦🇺 Australia</div>
+        <div class="comp-aqi" style="color:var(--green)">28</div>
+        <span class="comp-badge status-good">Good</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Newsletter -->
+  <div class="newsletter">
+    <div>
+      <div class="nl-title">☀️ Get Your Daily Air Quality Brief</div>
+      <p class="nl-desc">Every morning at 7AM — your city's AQI, pollen count, UV index, and outdoor activity recommendation. 30 seconds to read. Free forever.</p>
+    </div>
+    <div class="nl-form">
+      <input class="nl-input" type="email" placeholder="your@email.com"/>
+      <button class="nl-btn">Send Me the Daily Digest</button>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// Gauge canvas
+const gc=document.getElementById('gaugeCanvas');
+const gctx=gc.getContext('2d');
+const cx=120,cy=130,r=100;
+function drawGauge(){
+  gctx.clearRect(0,0,240,240);
+  // Track
+  gctx.beginPath();gctx.arc(cx,cy,r,Math.PI*.75,Math.PI*.25,false);
+  gctx.strokeStyle='rgba(255,255,255,0.06)';gctx.lineWidth=12;gctx.lineCap='round';gctx.stroke();
+  // Color scale arcs
+  const segs=[[0,'#6ddc8b'],[.2,'#c0e840'],[.4,'#ffd166'],[.6,'#ff9a3c'],[.8,'#ff5555']];
+  const startA=Math.PI*.75,totalA=Math.PI*1.5,aqiRatio=42/300;
+  gctx.beginPath();gctx.arc(cx,cy,r,startA,startA+totalA*aqiRatio,false);
+  const grad=gctx.createLinearGradient(cx-r,cy,cx+r,cy);
+  grad.addColorStop(0,'#6ddc8b');grad.addColorStop(1,'#a0ee80');
+  gctx.strokeStyle=grad;gctx.lineWidth=12;gctx.lineCap='round';gctx.stroke();
+  // Glow
+  gctx.beginPath();gctx.arc(cx,cy,r,startA,startA+totalA*aqiRatio,false);
+  gctx.strokeStyle='rgba(109,220,139,0.2)';gctx.lineWidth=20;gctx.stroke();
+  // Needle end dot
+  const endA=startA+totalA*aqiRatio;
+  const dx=cx+Math.cos(endA)*r,dy=cy+Math.sin(endA)*r;
+  gctx.beginPath();gctx.arc(dx,dy,7,0,Math.PI*2);
+  gctx.fillStyle='#6ddc8b';gctx.fill();
+  gctx.beginPath();gctx.arc(dx,dy,12,0,Math.PI*2);
+  gctx.fillStyle='rgba(109,220,139,0.25)';gctx.fill();
+}
+drawGauge();
+
+// AQI bars
+const aqiData=[38,42,55,48,62,70,75,65,52,44,42,38,36,42,50,58,52,47,42,40,38,36,40,42];
+const times=['12a','1','2','3','4','5','6','7','8','9','10','11','12p','1','2','3','4','5','6','7','8','9','10','11'];
+const colors=['#6ddc8b','#6ddc8b','#c0e840','#6ddc8b','#c0e840','#ffd166','#ffd166','#c0e840','#6ddc8b','#6ddc8b','#6ddc8b','#6ddc8b','#6ddc8b','#6ddc8b','#6ddc8b','#c0e840','#6ddc8b','#6ddc8b','#6ddc8b','#6ddc8b','#6ddc8b','#6ddc8b','#6ddc8b','#6ddc8b'];
+const barsEl=document.getElementById('aqiBars');
+const maxV=Math.max(...aqiData);
+aqiData.forEach((v,i)=>{
+  const bw=document.createElement('div');bw.className='bar-wrap';
+  const bar=document.createElement('div');bar.className='bar';
+  bar.style.cssText=`height:${(v/maxV)*100}px;background:${colors[i]};opacity:${i===12?1:0.5};`;
+  bar.title=`${times[i]}: AQI ${v}`;
+  const bt=document.createElement('div');bt.className='bar-time';bt.textContent=times[i];
+  bw.appendChild(bar);bw.appendChild(bt);
+  barsEl.appendChild(bw);
+});
+
+// Chart tabs
+document.querySelectorAll('.chart-tab').forEach(t=>{
+  t.addEventListener('click',()=>{document.querySelectorAll('.chart-tab').forEach(x=>x.classList.remove('active'));t.classList.add('active');});
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,30 @@
+/* Solid inner dot */
+.cursor {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 10px;
+    height: 10px;
+    background: var(--accent-cyan, #00d4ff);
+    border-radius: 50%;
+    pointer-events: none;
+    /* Let clicks pass through to links below */
+    z-index: 9999;
+    mix-blend-mode: screen;
+    will-change: transform;
+}
+
+/* Trailing outer ring */
+.cursor-ring {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 36px;
+    height: 36px;
+    border: 1px solid rgba(0, 212, 255, 0.4);
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 9998;
+    transition: width 0.2s, height 0.2s;
+    will-change: transform;
+}

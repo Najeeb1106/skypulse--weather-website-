@@ -1,0 +1,121 @@
+.monthly-section {
+  margin-bottom: 28px;
+  animation: fadeUp .7s .25s both;
+}
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.section-title {
+  font-family: 'Syne', sans-serif;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 16px;
+}
+
+.monthly-wrap {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 28px;
+}
+
+.chart-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 24px;
+}
+
+.chart-header-title {
+  font-family: 'Syne', sans-serif;
+  font-size: .95rem;
+  font-weight: 700;
+}
+
+.chart-legend {
+  display: flex;
+  gap: 16px;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.75rem;
+  color: var(--muted);
+}
+
+.legend-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+.months-grid {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: 8px;
+  align-items: end;
+}
+
+.month-col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+
+.month-bars {
+  position: relative;
+  width: 100%;
+  height: 160px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 2px;
+}
+
+.temp-bar-hi {
+  border-radius: 4px 4px 0 0;
+  width: 40%;
+  background: linear-gradient(180deg, var(--amber), rgba(255,154,60,0.4));
+}
+
+.temp-bar-lo {
+  border-radius: 4px 4px 0 0;
+  width: 40%;
+  background: linear-gradient(180deg, var(--cyan), rgba(0,212,255,0.4));
+}
+
+.month-name {
+  font-size: 0.62rem;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: .06em;
+}
+
+.month-hi {
+  font-family: 'Syne', sans-serif;
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--amber);
+}
+
+.month-lo {
+  font-family: 'Syne', sans-serif;
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--cyan);
+}
+
+@media(max-width: 900px) {
+  .months-grid {
+    grid-template-columns: repeat(6, 1fr);
+  }
+}

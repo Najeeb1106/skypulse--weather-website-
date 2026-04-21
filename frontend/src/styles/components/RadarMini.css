@@ -1,0 +1,100 @@
+.radar-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 0;
+  overflow: hidden;
+}
+
+.radar-header {
+  padding: 20px 24px 16px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.radar-mini {
+  height: 260px;
+  background: #020810;
+  position: relative;
+  overflow: hidden;
+}
+
+.r-grid-line {
+  position: absolute;
+  background: rgba(0,212,255,0.05);
+}
+
+.r-ring {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  border: 1px solid rgba(0,212,255,0.12);
+  border-radius: 50%;
+  transform: translate(-50%,-50%);
+}
+
+.r-sweep {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 130px;
+  height: 2px;
+  transform-origin: left;
+  background: linear-gradient(to right, transparent, rgba(0,212,255,0.6));
+  animation: sweep 4s linear infinite;
+}
+
+@keyframes sweep {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.r-center {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%,-50%);
+  width: 8px;
+  height: 8px;
+  background: var(--cyan);
+  border-radius: 50%;
+  box-shadow: 0 0 16px var(--cyan);
+}
+
+.r-blip {
+  position: absolute;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  animation: blip var(--d,3s) ease-in-out infinite var(--del,0s);
+}
+
+@keyframes blip {
+  0%, 100% { opacity: 0; transform: scale(0.5); }
+  50% { opacity: 1; transform: scale(1); }
+}
+
+.r-label {
+  position: absolute;
+  font-size: 0.65rem;
+  color: rgba(0,212,255,0.5);
+}
+
+.radar-view-btn {
+  background: rgba(0,212,255,0.1);
+  border: 1px solid rgba(0,212,255,0.25);
+  color: var(--cyan);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.78rem;
+  font-weight: 600;
+  padding: 8px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all .2s;
+}
+
+.radar-view-btn:hover {
+  background: rgba(0,212,255,0.18);
+}

@@ -1,0 +1,48 @@
+.page-header {
+  margin-bottom: 36px;
+  animation: fadeUp .6s .1s both;
+}
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.header-eyebrow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.eyebrow-tag {
+  background: rgba(255,58,92,0.12);
+  border: 1px solid rgba(255,58,92,0.3);
+  color: var(--red);
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  padding: 5px 14px;
+  border-radius: 100px;
+}
+
+.page-title {
+  font-family: 'Syne', sans-serif;
+  font-size: clamp(2rem, 5vw, 3.5rem);
+  font-weight: 800;
+  letter-spacing: -0.04em;
+  line-height: 1;
+}
+
+.page-title em {
+  color: var(--red);
+  font-style: normal;
+}
+
+.page-sub {
+  color: var(--muted);
+  font-size: 0.95rem;
+  margin-top: 10px;
+  max-width: 600px;
+}

@@ -1,0 +1,204 @@
+/* App Section Container */
+.app-section {
+  position: relative;
+  z-index: 1;
+  padding: 80px 48px;
+  max-width: 1200px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 80px;
+  align-items: center;
+}
+
+/* Typography & Content */
+.section-tag {
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--accent-cyan, #00d4ff);
+  margin-bottom: 12px;
+}
+
+.app-title {
+  font-family: 'Syne', sans-serif;
+  font-size: clamp(2rem, 4vw, 3rem);
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  margin-bottom: 20px;
+  line-height: 1.1;
+}
+
+.app-desc { 
+  font-size: 1rem; 
+  color: var(--text-muted, #7a8fad); 
+  line-height: 1.7; 
+  margin-bottom: 36px; 
+}
+
+/* Download Buttons */
+.app-buttons { 
+  display: flex; 
+  gap: 16px; 
+  flex-wrap: wrap; 
+}
+
+.app-btn {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 14px;
+  padding: 14px 24px;
+  cursor: pointer; /* Override global none for interactivity */
+  transition: all 0.2s;
+  text-decoration: none;
+  color: var(--text-primary, #f0f4ff);
+}
+
+.app-btn:hover { 
+  background: rgba(255, 255, 255, 0.1); 
+  border-color: rgba(255, 255, 255, 0.2); 
+  transform: translateY(-2px); 
+}
+
+.app-btn-icon { font-size: 1.8rem; }
+.app-btn-text { text-align: left; }
+.app-btn-label { 
+  font-size: 0.65rem; 
+  color: var(--text-muted, #7a8fad); 
+  text-transform: uppercase; 
+  letter-spacing: 0.08em; 
+}
+.app-btn-store { 
+  font-family: 'Syne', sans-serif; 
+  font-size: 1rem; 
+  font-weight: 700; 
+}
+
+/* --- Pure CSS Phone Mockup --- */
+.phone-mockup {
+  position: relative;
+  display: flex;
+  justify-content: center;
+}
+
+.phone-frame {
+  width: 260px;
+  background: linear-gradient(160deg, #1a2a3a, #0d1826);
+  border-radius: 40px;
+  padding: 16px;
+  border: 2px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 40px 80px rgba(0, 0, 0, 0.6), 0 0 60px rgba(0, 212, 255, 0.1);
+  position: relative;
+  z-index: 2;
+}
+
+.phone-screen {
+  background: linear-gradient(160deg, #071428, #040d1a);
+  border-radius: 28px;
+  padding: 24px 20px;
+  min-height: 500px;
+  overflow: hidden;
+  position: relative;
+}
+
+/* Inside the Phone Screen */
+.phone-status { 
+  display: flex; 
+  justify-content: space-between; 
+  font-size: 0.65rem; 
+  color: var(--text-muted, #7a8fad); 
+  margin-bottom: 20px; 
+}
+
+.phone-location { 
+  font-size: 0.8rem; 
+  color: var(--text-muted, #7a8fad); 
+  display: flex; 
+  align-items: center; 
+  gap: 4px; 
+}
+
+.phone-temp-big { 
+  font-family: 'Syne', sans-serif; 
+  font-size: 4rem; 
+  font-weight: 800; 
+  letter-spacing: -0.04em; 
+  line-height: 1; 
+}
+
+.phone-condition { 
+  color: var(--text-muted, #7a8fad); 
+  font-size: 0.85rem; 
+  margin: 4px 0 20px; 
+}
+
+.phone-hourly { 
+  display: flex; 
+  gap: 12px; 
+  overflow-x: auto; 
+  margin-top: 20px; 
+  padding-bottom: 4px; 
+}
+
+.phone-hourly::-webkit-scrollbar { display: none; }
+
+.hour-item { text-align: center; flex-shrink: 0; }
+.hour-time { font-size: 0.65rem; color: var(--text-muted, #7a8fad); }
+.hour-icon { font-size: 1.2rem; margin: 6px 0; }
+.hour-temp { font-size: 0.75rem; font-weight: 500; }
+
+.phone-divider { 
+  height: 1px; 
+  background: var(--glass-border, rgba(255, 255, 255, 0.08)); 
+  margin: 16px 0; 
+}
+
+.phone-stats { 
+  display: grid; 
+  grid-template-columns: 1fr 1fr; 
+  gap: 12px; 
+}
+
+.phone-stat { 
+  background: var(--glass, rgba(255, 255, 255, 0.04)); 
+  border-radius: 12px; 
+  padding: 12px; 
+}
+
+.phone-stat-label { 
+  font-size: 0.6rem; 
+  color: var(--text-muted, #7a8fad); 
+  text-transform: uppercase; 
+  letter-spacing: 0.08em; 
+}
+
+.phone-stat-value { 
+  font-size: 1rem; 
+  font-weight: 600; 
+  margin-top: 4px; 
+}
+
+/* Scroll Reveal Global Modifier */
+.reveal {
+  opacity: 0;
+  transform: translateY(24px);
+  transition: opacity 0.7s ease, transform 0.7s ease;
+}
+
+.reveal.visible { 
+  opacity: 1; 
+  transform: translateY(0); 
+}
+
+/* Responsive */
+@media (max-width: 900px) {
+  .app-section { 
+    grid-template-columns: 1fr; 
+    padding: 60px 24px; 
+    gap: 40px; 
+  }
+}

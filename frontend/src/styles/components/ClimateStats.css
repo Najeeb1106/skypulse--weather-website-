@@ -1,0 +1,46 @@
+.climate-stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  margin-bottom: 28px;
+  animation: fadeUp .7s .3s both;
+}
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.cstat {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 20px;
+  text-align: center;
+  transition: all .2s;
+}
+
+.cstat:hover {
+  border-color: rgba(255,209,102,0.2);
+}
+
+.cstat-val {
+  font-family: 'Syne', sans-serif;
+  font-size: 1.8rem;
+  font-weight: 800;
+  letter-spacing: -0.04em;
+}
+
+.cstat-label {
+  font-size: 0.7rem;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  margin-top: 4px;
+}
+
+@media(max-width: 900px) {
+  .climate-stats {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}

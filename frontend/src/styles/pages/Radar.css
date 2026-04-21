@@ -1,0 +1,20 @@
+.radar-page {
+  position: relative;
+  width: 100%;
+  height: 100vh;
+  overflow: hidden;
+  background: var(--bg, #020a14);
+}
+
+/* Ensure the UI layer doesn't block clicks to the canvas below */
+.radar-ui-layer {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 10;
+}
+
+/* Re-enable pointer events for all the floating panels inside the UI layer */
+.radar-ui-layer > * {
+  pointer-events: auto;
+}

@@ -1,0 +1,21 @@
+/* Lock the page to the viewport size and hide scrollbars */
+.radar-page {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+  background: #020a14;
+}
+
+/* Ensure the UI layer sits securely above the canvas */
+.radar-ui-layer {
+  position: absolute;
+  inset: 0;
+  pointer-events: none; /* Let clicks pass through to the canvas by default */
+  z-index: 10;
+}
+
+/* Reactivate pointer events for all the floating panels */
+.radar-ui-layer > * {
+  pointer-events: auto;
+}

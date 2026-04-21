@@ -1,0 +1,19 @@
+.climate-page {
+  position: relative;
+  z-index: 1;
+  padding: 120px 48px 60px; 
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+@media (max-width: 1366px) {
+  .climate-page {
+    padding: 120px 24px 60px;
+  }
+}
+
+@media (max-width: 900px) {
+  .climate-page {
+    padding: 100px 20px 40px;
+  }
+}

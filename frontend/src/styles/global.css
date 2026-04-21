@@ -1,0 +1,122 @@
+/* Import Google Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&family=DM+Mono:wght@400;500&display=swap');
+
+/* Global CSS Variables */
+:root {
+  --sky-deep: #040d1a;
+  --sky-mid: #071428;
+  --sky-blue: #0a2040;
+  --accent-cyan: #00d4ff;
+  --accent-ice: #7ee8fa;
+  --accent-storm: #ff6b35;
+  --accent-gold: #ffd166;
+  --text-primary: #f0f4ff;
+  --text-muted: #7a8fad;
+  --glass: rgba(255, 255, 255, 0.04);
+  --glass-border: rgba(255, 255, 255, 0.08);
+  --glow-cyan: 0 0 40px rgba(0, 212, 255, 0.2);
+
+  --border: rgba(255, 255, 255, 0.1);
+  --cyan: #00d4ff;
+  --green: #6ddc8b;
+  --red: #ff3a5c;
+  --orange: #ff6b35;
+  --yellow: #ffd166;
+  --blue: #4da6ff;
+  --text: #f0f4ff;
+  --muted: #7a8fad;
+  --panel: rgba(13, 25, 48, 0.8);
+}
+
+/* Base Reset */
+*, *::before, *::after { 
+  margin: 0; 
+  padding: 0; 
+  box-sizing: border-box; 
+}
+
+html { 
+  scroll-behavior: smooth; 
+  overflow-x: hidden;
+}
+
+/* Body Styling */
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--sky-deep);
+  color: var(--text-primary);
+  overflow-x: hidden; /* Prevents horizontal scrolling */
+  
+  /* Hides the default browser cursor so our custom one shows up! */
+  cursor: none; 
+}
+
+/* Make sure links and buttons don't show the default pointer either */
+a, button {
+  cursor: none;
+}
+
+/* =========================================
+   GLOBAL MOBILE RESPONSIVENESS OVERRIDES
+   ========================================= */
+
+@media (max-width: 768px) {
+  /* 1. Reduce massive spacing on mobile */
+  .hero {
+    padding: 100px 20px 40px !important;
+  }
+  
+  section {
+    padding: 50px 20px !important; /* Squish sections closer together */
+  }
+
+  /* 2. Scale down massive typography */
+  .hero-title {
+    font-size: clamp(2.5rem, 10vw, 4rem) !important;
+  }
+  
+  .section-title, .app-title {
+    font-size: 2.2rem !important;
+  }
+
+  .stat-value {
+    font-size: 2rem !important;
+  }
+
+  /* 3. Fix Search Bar width on mobile */
+  .search-wrap {
+    width: 100%;
+  }
+  
+  .search-btn {
+    padding: 10px 16px !important;
+    font-size: 0.8rem !important;
+  }
+
+  /* 4. Make sure grids collapse fully on tiny screens */
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+  
+  .stat-item {
+    padding: 24px 16px !important;
+  }
+}
+
+@media (max-width: 480px) {
+  /* On very small phones, collapse stats to 1 column */
+  .stats-grid {
+    grid-template-columns: 1fr !important;
+  }
+  
+  /* Stack the app download buttons */
+  .app-buttons {
+    flex-direction: column;
+    width: 100%;
+  }
+  
+  .app-btn {
+    width: 100%;
+    justify-content: center;
+  }
+}

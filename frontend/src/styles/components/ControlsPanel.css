@@ -1,0 +1,112 @@
+.controls-panel {
+  position: fixed;
+  top: 146px;
+  right: 20px;
+  z-index: 50;
+  width: 200px;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  padding: 20px;
+  backdrop-filter: blur(24px);
+  animation: slideInRight .5s cubic-bezier(.16, 1, .3, 1) both;
+}
+
+@keyframes slideInRight {
+  from { opacity: 0; transform: translateX(20px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+.zoom-btns {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 16px;
+}
+
+.zoom-btn {
+  flex: 1;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid var(--border);
+  color: var(--text);
+  font-size: 1rem;
+  padding: 10px;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all .2s;
+  font-family: 'DM Mono', monospace;
+}
+
+.zoom-btn:hover {
+  background: rgba(0,212,255,0.1);
+  border-color: rgba(0,212,255,0.3);
+}
+
+.time-control {
+  margin-top: 4px;
+}
+
+.time-label {
+  font-size: 0.68rem;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: .1em;
+  margin-bottom: 8px;
+}
+
+.time-slider {
+  width: 100%;
+  -webkit-appearance: none;
+  appearance: none;
+  height: 4px;
+  background: rgba(255,255,255,0.1);
+  border-radius: 2px;
+  outline: none;
+}
+
+.time-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 14px;
+  height: 14px;
+  background: var(--cyan);
+  border-radius: 50%;
+  cursor: pointer;
+  box-shadow: 0 0 8px var(--cyan);
+}
+
+.time-display {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.78rem;
+  color: var(--cyan);
+  margin-top: 8px;
+  text-align: center;
+}
+
+.time-buttons {
+  display: flex;
+  gap: 6px;
+  margin-top: 10px;
+}
+
+.time-btn {
+  flex: 1;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid var(--border);
+  color: var(--muted);
+  font-size: 0.7rem;
+  padding: 7px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all .2s;
+  font-family: 'DM Sans', sans-serif;
+}
+
+.time-btn:hover {
+  color: var(--cyan);
+  border-color: rgba(0,212,255,0.3);
+}
+
+.time-btn.active {
+  background: rgba(0,212,255,0.1);
+  color: var(--cyan);
+  border-color: rgba(0,212,255,0.35);
+}

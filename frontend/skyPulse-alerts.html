@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>SkyPulse — Severe Weather Alerts</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --bg:#07040a;--surface:rgba(255,255,255,0.04);--border:rgba(255,255,255,0.07);
+  --red:#ff3a5c;--orange:#ff6b35;--yellow:#ffd166;--blue:#4da6ff;--green:#6ddc8b;
+  --text:#f5f0ff;--muted:#6a5a7a;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);overflow-x:hidden;}
+
+.bg-layer{position:fixed;inset:0;z-index:0;
+  background:
+    radial-gradient(ellipse 80% 50% at 50% -5%,rgba(80,10,10,0.7) 0%,transparent 60%),
+    radial-gradient(ellipse 40% 30% at 20% 80%,rgba(50,5,5,0.4) 0%,transparent 50%),
+    #07040a;
+}
+.lightning-flash{position:fixed;inset:0;z-index:0;pointer-events:none;animation:flash 8s ease-in-out infinite 3s;opacity:0;}
+@keyframes flash{0%,94%,100%{opacity:0;}95%{opacity:0.03;}96%{opacity:0;}97%{opacity:0.02;}98%{opacity:0;}}
+
+nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:18px 40px;background:rgba(7,4,10,0.85);backdrop-filter:blur(20px);border-bottom:1px solid rgba(255,255,255,0.06);}
+.logo{font-family:'Syne',sans-serif;font-weight:800;font-size:1.3rem;letter-spacing:-0.02em;display:flex;align-items:center;gap:8px;text-decoration:none;color:var(--text);}
+.logo-dot{width:28px;height:28px;background:linear-gradient(135deg,#00d4ff,#006fff);border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:15px;}
+.logo span{color:#00d4ff;}
+.alert-count-badge{background:var(--red);color:white;font-family:'Syne',sans-serif;font-size:0.75rem;font-weight:700;padding:6px 16px;border-radius:100px;display:flex;align-items:center;gap:6px;animation:countPulse 2s ease-in-out infinite;}
+@keyframes countPulse{0%,100%{box-shadow:0 0 0 0 rgba(255,58,92,0.4);}50%{box-shadow:0 0 0 8px rgba(255,58,92,0);}}
+.alert-dot{width:7px;height:7px;background:white;border-radius:50%;animation:blink 1s infinite;}
+@keyframes blink{0%,100%{opacity:1;}50%{opacity:0;}}
+
+.page{position:relative;z-index:1;padding:96px 40px 60px;max-width:1200px;margin:0 auto;}
+
+/* Page header */
+.page-header{margin-bottom:36px;animation:fadeUp .6s .1s both;}
+@keyframes fadeUp{from{opacity:0;transform:translateY(20px);}to{opacity:1;transform:translateY(0);}}
+.header-eyebrow{display:flex;align-items:center;gap:10px;margin-bottom:12px;}
+.eyebrow-tag{background:rgba(255,58,92,0.12);border:1px solid rgba(255,58,92,0.3);color:var(--red);font-size:0.7rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;padding:5px 14px;border-radius:100px;}
+.page-title{font-family:'Syne',sans-serif;font-size:clamp(2rem,5vw,3.5rem);font-weight:800;letter-spacing:-0.04em;line-height:1;}
+.page-title em{color:var(--red);font-style:normal;}
+.page-sub{color:var(--muted);font-size:0.95rem;margin-top:10px;max-width:600px;}
+
+/* Filter bar */
+.filter-bar{display:flex;align-items:center;gap:10px;margin-bottom:28px;flex-wrap:wrap;animation:fadeUp .6s .2s both;}
+.filter-label{font-size:0.72rem;color:var(--muted);text-transform:uppercase;letter-spacing:.1em;margin-right:4px;}
+.filter-chip{background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);color:var(--muted);font-size:0.8rem;padding:8px 16px;border-radius:100px;cursor:pointer;transition:all .2s;display:flex;align-items:center;gap:6px;}
+.filter-chip:hover{border-color:rgba(255,255,255,0.2);color:var(--text);}
+.filter-chip.active-red{background:rgba(255,58,92,0.12);border-color:rgba(255,58,92,0.35);color:var(--red);}
+.filter-chip.active-orange{background:rgba(255,107,53,0.1);border-color:rgba(255,107,53,0.3);color:var(--orange);}
+.filter-chip.active-yellow{background:rgba(255,209,102,0.08);border-color:rgba(255,209,102,0.25);color:var(--yellow);}
+.filter-chip.active-blue{background:rgba(77,166,255,0.08);border-color:rgba(77,166,255,0.25);color:var(--blue);}
+
+/* Alert grid */
+.alerts-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:40px;}
+
+.alert-card{border-radius:18px;padding:24px;position:relative;overflow:hidden;cursor:pointer;transition:transform .25s,box-shadow .25s;animation:fadeUp .5s calc(var(--i)*.08s + .3s) both;}
+.alert-card:hover{transform:translateY(-3px);}
+.alert-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;}
+
+.alert-extreme{background:linear-gradient(135deg,rgba(255,58,92,0.12),rgba(180,10,40,0.08));border:1px solid rgba(255,58,92,0.3);}
+.alert-extreme::before{background:linear-gradient(90deg,var(--red),#ff6090);}
+.alert-extreme:hover{box-shadow:0 8px 40px rgba(255,58,92,0.2);}
+
+.alert-severe{background:linear-gradient(135deg,rgba(255,107,53,0.1),rgba(200,60,10,0.07));border:1px solid rgba(255,107,53,0.28);}
+.alert-severe::before{background:linear-gradient(90deg,var(--orange),#ffaa60);}
+.alert-severe:hover{box-shadow:0 8px 40px rgba(255,107,53,0.18);}
+
+.alert-warning{background:linear-gradient(135deg,rgba(255,209,102,0.08),rgba(200,150,0,0.06));border:1px solid rgba(255,209,102,0.22);}
+.alert-warning::before{background:linear-gradient(90deg,var(--yellow),#ffe080);}
+.alert-warning:hover{box-shadow:0 8px 40px rgba(255,209,102,0.15);}
+
+.alert-watch{background:linear-gradient(135deg,rgba(77,166,255,0.08),rgba(20,80,200,0.06));border:1px solid rgba(77,166,255,0.2);}
+.alert-watch::before{background:linear-gradient(90deg,var(--blue),#80c0ff);}
+.alert-watch:hover{box-shadow:0 8px 40px rgba(77,166,255,0.12);}
+
+.card-top{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:14px;}
+.card-icon-wrap{font-size:2rem;flex-shrink:0;}
+.severity-tag{font-size:0.65rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:4px 12px;border-radius:100px;}
+.tag-extreme{background:rgba(255,58,92,0.2);color:var(--red);border:1px solid rgba(255,58,92,0.35);}
+.tag-severe{background:rgba(255,107,53,0.15);color:var(--orange);border:1px solid rgba(255,107,53,0.3);}
+.tag-warning{background:rgba(255,209,102,0.12);color:var(--yellow);border:1px solid rgba(255,209,102,0.3);}
+.tag-watch{background:rgba(77,166,255,0.1);color:var(--blue);border:1px solid rgba(77,166,255,0.25);}
+
+.card-title{font-family:'Syne',sans-serif;font-size:1.05rem;font-weight:700;margin-bottom:4px;line-height:1.2;}
+.card-region{font-size:0.8rem;color:var(--muted);margin-bottom:12px;display:flex;align-items:center;gap:6px;}
+.card-desc{font-size:0.85rem;color:rgba(240,235,255,0.75);line-height:1.6;margin-bottom:14px;}
+.card-meta{display:flex;align-items:center;justify-content:space-between;padding-top:12px;border-top:1px solid rgba(255,255,255,0.06);}
+.card-time{font-size:0.72rem;color:var(--muted);}
+.card-actions{display:flex;gap:8px;}
+.card-btn{font-size:0.75rem;font-weight:600;padding:7px 14px;border-radius:8px;cursor:pointer;border:1px solid;font-family:'DM Sans',sans-serif;transition:all .2s;}
+.btn-primary-red{background:rgba(255,58,92,0.15);border-color:rgba(255,58,92,0.35);color:var(--red);}
+.btn-primary-red:hover{background:rgba(255,58,92,0.25);}
+.btn-primary-orange{background:rgba(255,107,53,0.12);border-color:rgba(255,107,53,0.3);color:var(--orange);}
+.btn-primary-orange:hover{background:rgba(255,107,53,0.22);}
+.btn-primary-yellow{background:rgba(255,209,102,0.1);border-color:rgba(255,209,102,0.28);color:var(--yellow);}
+.btn-primary-yellow:hover{background:rgba(255,209,102,0.18);}
+.btn-primary-blue{background:rgba(77,166,255,0.08);border-color:rgba(77,166,255,0.25);color:var(--blue);}
+.btn-primary-blue:hover{background:rgba(77,166,255,0.16);}
+.btn-secondary{background:transparent;border-color:rgba(255,255,255,0.1);color:var(--muted);}
+.btn-secondary:hover{border-color:rgba(255,255,255,0.2);color:var(--text);}
+
+/* Stats row */
+.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:40px;animation:fadeUp .6s .5s both;}
+.stat-box{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:20px;text-align:center;}
+.stat-num{font-family:'Syne',sans-serif;font-size:2rem;font-weight:800;letter-spacing:-0.04em;}
+.stat-lbl{font-size:0.72rem;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-top:4px;}
+
+/* Subscribe CTA */
+.subscribe-section{background:linear-gradient(135deg,rgba(255,58,92,0.07),rgba(255,107,53,0.04));border:1px solid rgba(255,58,92,0.2);border-radius:20px;padding:40px;display:grid;grid-template-columns:1fr auto;gap:40px;align-items:center;animation:fadeUp .6s .55s both;}
+.sub-title{font-family:'Syne',sans-serif;font-size:1.5rem;font-weight:800;letter-spacing:-0.03em;margin-bottom:8px;}
+.sub-desc{font-size:0.9rem;color:var(--muted);max-width:500px;line-height:1.6;margin-bottom:20px;}
+.sub-trust{display:flex;gap:20px;flex-wrap:wrap;}
+.trust-item{font-size:0.78rem;color:var(--muted);display:flex;align-items:center;gap:6px;}
+.trust-item::before{content:'✓';color:var(--green);font-weight:700;}
+.sub-form{display:flex;flex-direction:column;gap:10px;min-width:280px;}
+.sub-input{background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.1);border-radius:12px;padding:14px 18px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:0.9rem;outline:none;transition:border-color .2s;}
+.sub-input:focus{border-color:rgba(255,58,92,0.5);}
+.sub-input::placeholder{color:var(--muted);}
+.sub-toggle-row{display:flex;gap:8px;}
+.sub-toggle{flex:1;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);color:var(--muted);font-size:0.78rem;padding:10px;border-radius:10px;cursor:pointer;transition:all .2s;font-family:'DM Sans',sans-serif;}
+.sub-toggle.on{background:rgba(255,58,92,0.12);border-color:rgba(255,58,92,0.3);color:var(--red);}
+.sub-submit{background:linear-gradient(135deg,var(--red),#c0202a);border:none;color:white;font-family:'Syne',sans-serif;font-weight:700;font-size:0.9rem;padding:14px;border-radius:12px;cursor:pointer;transition:opacity .2s;}
+.sub-submit:hover{opacity:.9;}
+
+@media(max-width:900px){
+  .page{padding:80px 20px 40px;}
+  nav{padding:14px 20px;}
+  .alerts-grid{grid-template-columns:1fr;}
+  .stats-row{grid-template-columns:repeat(2,1fr);}
+  .subscribe-section{grid-template-columns:1fr;}
+}
+</style>
+</head>
+<body>
+<div class="bg-layer"></div>
+<div class="lightning-flash" style="background:white;"></div>
+
+<nav>
+  <a href="#" class="logo"><div class="logo-dot">🌤</div>Sky<span>Pulse</span></a>
+  <div class="alert-count-badge"><span class="alert-dot"></span> 7 Active Alerts Worldwide</div>
+</nav>
+
+<div class="page">
+
+  <div class="page-header">
+    <div class="header-eyebrow">
+      <div class="eyebrow-tag">⚡ Live Alerts</div>
+    </div>
+    <h1 class="page-title">Be First to Know.<br><em>Stay Safe.</em></h1>
+    <p class="page-sub">Real-time severe weather warnings for every country on Earth. Updated within 60 seconds of any new threat.</p>
+  </div>
+
+  <!-- Stats -->
+  <div class="stats-row">
+    <div class="stat-box"><div class="stat-num" style="color:var(--red)">7</div><div class="stat-lbl">Active Alerts</div></div>
+    <div class="stat-box"><div class="stat-num" style="color:var(--orange)">3</div><div class="stat-lbl">Active Storms</div></div>
+    <div class="stat-box"><div class="stat-num" style="color:var(--yellow)">12</div><div class="stat-lbl">Watches Issued</div></div>
+    <div class="stat-box"><div class="stat-num" style="color:var(--green)">2.4M</div><div class="stat-lbl">People Alerted</div></div>
+  </div>
+
+  <!-- Filter -->
+  <div class="filter-bar">
+    <span class="filter-label">Filter:</span>
+    <span class="filter-chip active-red">🔴 Extreme</span>
+    <span class="filter-chip active-orange">🟠 Severe</span>
+    <span class="filter-chip active-yellow">🟡 Warning</span>
+    <span class="filter-chip active-blue">🔵 Watch</span>
+    <span class="filter-chip">🌀 Hurricanes</span>
+    <span class="filter-chip">🌪 Tornadoes</span>
+    <span class="filter-chip">❄️ Winter</span>
+    <span class="filter-chip">🔥 Wildfire</span>
+  </div>
+
+  <!-- Alert Cards -->
+  <div class="alerts-grid">
+
+    <div class="alert-card alert-extreme" style="--i:1">
+      <div class="card-top">
+        <span class="card-icon-wrap">🌀</span>
+        <span class="severity-tag tag-extreme">🔴 Extreme</span>
+      </div>
+      <div class="card-title">Hurricane Ana — Category 2</div>
+      <div class="card-region">📍 Gulf of Mexico · Coastal Louisiana & Texas</div>
+      <div class="card-desc">Sustained winds of 175 km/h with gusts to 210 km/h. Life-threatening storm surge of 3–5m expected along the coast. Mandatory evacuation orders in effect for Zone A and Zone B.</div>
+      <div class="card-meta">
+        <div class="card-time">⏱ Expires: Sun 18 Apr, 6:00 AM CDT</div>
+        <div class="card-actions">
+          <button class="card-btn btn-secondary">Safety Tips</button>
+          <button class="card-btn btn-primary-red">Track Storm →</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="alert-card alert-severe" style="--i:2">
+      <div class="card-top">
+        <span class="card-icon-wrap">⛈️</span>
+        <span class="severity-tag tag-severe">🟠 Severe</span>
+      </div>
+      <div class="card-title">Severe Thunderstorm Warning</div>
+      <div class="card-region">📍 Northeast USA · CT, NY, NJ, PA</div>
+      <div class="card-desc">Dangerous lightning, hail up to 2.5cm diameter, and wind gusts exceeding 90 km/h expected. Flash flooding possible in low-lying areas. Seek shelter immediately.</div>
+      <div class="card-meta">
+        <div class="card-time">⏱ Expires: Today 9:00 PM EDT</div>
+        <div class="card-actions">
+          <button class="card-btn btn-secondary">Details</button>
+          <button class="card-btn btn-primary-orange">Set Alert →</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="alert-card alert-extreme" style="--i:3">
+      <div class="card-top">
+        <span class="card-icon-wrap">🔥</span>
+        <span class="severity-tag tag-extreme">🔴 Extreme</span>
+      </div>
+      <div class="card-title">Extreme Fire Danger Warning</div>
+      <div class="card-region">📍 Western Australia · Pilbara Region</div>
+      <div class="card-desc">Catastrophic fire conditions. Relative humidity below 5%, temperatures above 44°C, and winds of 60 km/h. Leave fire-risk areas now. Do not wait for official evacuation orders.</div>
+      <div class="card-meta">
+        <div class="card-time">⏱ Expires: Sat 18 Apr, 8:00 PM AWST</div>
+        <div class="card-actions">
+          <button class="card-btn btn-secondary">Evacuation Map</button>
+          <button class="card-btn btn-primary-red">View Alert →</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="alert-card alert-warning" style="--i:4">
+      <div class="card-top">
+        <span class="card-icon-wrap">🌊</span>
+        <span class="severity-tag tag-warning">🟡 Warning</span>
+      </div>
+      <div class="card-title">Coastal Flood Warning</div>
+      <div class="card-region">📍 Southeast USA · Carolinas Coastline</div>
+      <div class="card-desc">Tidal flooding 0.6–1.2m above normal expected during high tide cycles. Low-lying roads and properties at risk. Move vehicles and belongings to higher ground.</div>
+      <div class="card-meta">
+        <div class="card-time">⏱ Expires: Sat 19 Apr, 2:00 PM EST</div>
+        <div class="card-actions">
+          <button class="card-btn btn-secondary">Flood Map</button>
+          <button class="card-btn btn-primary-yellow">Track →</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="alert-card alert-warning" style="--i:5">
+      <div class="card-top">
+        <span class="card-icon-wrap">❄️</span>
+        <span class="severity-tag tag-warning">🟡 Warning</span>
+      </div>
+      <div class="card-title">Winter Storm Warning</div>
+      <div class="card-region">📍 Northern Canada · Manitoba & Saskatchewan</div>
+      <div class="card-desc">Heavy snowfall of 25–40cm forecast with blowing snow reducing visibility near zero. Wind chill values to −38°C. Travel strongly discouraged. Frostbite can occur within minutes.</div>
+      <div class="card-meta">
+        <div class="card-time">⏱ Expires: Mon 20 Apr, 12:00 PM CST</div>
+        <div class="card-actions">
+          <button class="card-btn btn-secondary">Road Conditions</button>
+          <button class="card-btn btn-primary-yellow">Get Alerts →</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="alert-card alert-watch" style="--i:6">
+      <div class="card-top">
+        <span class="card-icon-wrap">🌪️</span>
+        <span class="severity-tag tag-watch">🔵 Watch</span>
+      </div>
+      <div class="card-title">Tornado Watch</div>
+      <div class="card-region">📍 Central USA · Oklahoma · Kansas</div>
+      <div class="card-desc">Conditions favorable for tornado development through this evening. Multiple supercells possible with the potential for significant tornadoes. Monitor radar and be ready to take shelter on short notice.</div>
+      <div class="card-meta">
+        <div class="card-time">⏱ Expires: Today 11:00 PM CDT</div>
+        <div class="card-actions">
+          <button class="card-btn btn-secondary">Shelter Guide</button>
+          <button class="card-btn btn-primary-blue">Watch Live →</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Subscribe CTA -->
+  <div class="subscribe-section">
+    <div>
+      <div class="sub-title">🔔 Get Alerted Before the Storm Hits</div>
+      <p class="sub-desc">Enter your city and we'll send you real-time warnings the moment severe weather threatens your area. Push, email, or SMS — your choice.</p>
+      <div class="sub-trust">
+        <div class="trust-item">Alerts sent within 60 seconds</div>
+        <div class="trust-item">No spam, ever</div>
+        <div class="trust-item">2M+ people protected</div>
+        <div class="trust-item">Unsubscribe anytime</div>
+      </div>
+    </div>
+    <div class="sub-form">
+      <input class="sub-input" type="text" placeholder="📍 Your city or ZIP code"/>
+      <div class="sub-toggle-row">
+        <button class="sub-toggle on">📱 Push</button>
+        <button class="sub-toggle on">📧 Email</button>
+        <button class="sub-toggle">💬 SMS</button>
+      </div>
+      <button class="sub-submit">⚡ Set Up My Alerts — Free</button>
+    </div>
+  </div>
+
+</div>
+<script>
+document.querySelectorAll('.filter-chip').forEach(c=>{
+  c.addEventListener('click',()=>c.classList.toggle('active-blue'));
+});
+document.querySelectorAll('.sub-toggle').forEach(t=>{
+  t.addEventListener('click',()=>t.classList.toggle('on'));
+});
+</script>
+</body>
+</html>

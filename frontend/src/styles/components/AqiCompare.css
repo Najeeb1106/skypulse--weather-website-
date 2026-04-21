@@ -1,0 +1,95 @@
+.compare-section {
+  margin-bottom: 32px;
+  animation: fadeUp .7s .35s both;
+}
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.section-title {
+  font-family: 'Syne', sans-serif;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 16px;
+}
+
+.aqi-compare-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 12px;
+}
+
+.compare-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 18px;
+  text-align: center;
+  transition: all .2s;
+  cursor: pointer;
+}
+
+.compare-card:hover {
+  border-color: rgba(109,220,139,0.2);
+}
+
+.compare-card.highlight {
+  border-color: rgba(109,220,139,0.35);
+  background: rgba(109,220,139,0.06);
+}
+
+.comp-city {
+  font-size: 0.78rem;
+  font-weight: 500;
+  margin-bottom: 4px;
+}
+
+.comp-country {
+  font-size: 0.65rem;
+  color: var(--muted);
+}
+
+.comp-aqi {
+  font-family: 'Syne', sans-serif;
+  font-size: 2rem;
+  font-weight: 800;
+  letter-spacing: -0.04em;
+  margin: 10px 0 6px;
+}
+
+.comp-badge {
+  font-size: 0.68rem;
+  font-weight: 600;
+  padding: 3px 10px;
+  border-radius: 100px;
+}
+
+/* Status variants for compare badges */
+.status-good {
+  background: rgba(109,220,139,0.12);
+  color: var(--green);
+  border: 1px solid rgba(109,220,139,0.25);
+}
+
+.status-mod {
+  background: rgba(255,209,102,0.1);
+  color: var(--yellow);
+  border: 1px solid rgba(255,209,102,0.25);
+}
+
+.status-unhealthy {
+  background: rgba(255,85,85,0.1);
+  color: var(--red);
+  border: 1px solid rgba(255,85,85,0.25);
+}
+
+@media(max-width: 900px) {
+  .aqi-compare-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}

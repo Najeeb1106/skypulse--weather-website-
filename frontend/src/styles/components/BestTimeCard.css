@@ -1,0 +1,73 @@
+.best-time-card {
+  background: linear-gradient(135deg, rgba(255,209,102,0.09), rgba(255,107,53,0.05));
+  border: 1px solid rgba(255,209,102,0.2);
+  border-radius: 20px;
+  padding: 28px 32px;
+  margin-bottom: 28px;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 32px;
+  align-items: center;
+  animation: fadeUp .7s .2s both;
+}
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.bt-label {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: .12em;
+  color: var(--gold);
+  margin-bottom: 8px;
+}
+
+.bt-city {
+  font-family: 'Syne', sans-serif;
+  font-size: 1.5rem;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  margin-bottom: 6px;
+}
+
+.bt-text {
+  font-size: 0.9rem;
+  color: rgba(245,240,255,0.65);
+  line-height: 1.6;
+}
+
+.bt-peak-label {
+  font-size: .7rem;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: .1em;
+  margin-bottom: 10px;
+}
+
+.bt-months {
+  display: flex;
+  gap: 8px;
+}
+
+.bt-month {
+  background: rgba(255,209,102,0.12);
+  border: 1px solid rgba(255,209,102,0.25);
+  color: var(--gold);
+  font-size: 0.78rem;
+  font-weight: 600;
+  padding: 8px 16px;
+  border-radius: 10px;
+}
+
+.bt-month.peak {
+  background: rgba(255,209,102,0.25);
+  border-color: rgba(255,209,102,0.5);
+}
+
+@media(max-width: 900px) {
+  .best-time-card {
+    grid-template-columns: 1fr;
+  }
+}

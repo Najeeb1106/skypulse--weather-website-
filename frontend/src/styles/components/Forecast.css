@@ -1,0 +1,41 @@
+/* Main page container */
+.forecast-page {
+  position: relative;
+  z-index: 1;
+  padding: 120px 48px 60px; 
+  max-width: 1150px;
+  margin: 0 auto;
+}
+
+/* Grid layout for the Radar Mini and Save Location cards */
+.bottom-row {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 16px;
+  margin-top: 28px;
+  animation: fadeUp 0.7s 0.45s both;
+}
+
+/* Fallback animation just in case it isn't in global.css */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(24px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Mobile Responsiveness */
+@media (max-width: 1366px) {
+  .forecast-page {
+    padding: 120px 24px 60px;
+  }
+}
+
+@media (max-width: 1200px) {
+  .forecast-page {
+    padding: 100px 24px 40px;
+  }
+  
+  /* Stack the bottom cards on smaller screens */
+  .bottom-row {
+    grid-template-columns: 1fr;
+  }
+}

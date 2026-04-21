@@ -1,0 +1,68 @@
+.alert-strip {
+  position: fixed;
+  bottom: 20px;
+  left: 240px;
+  right: 240px;
+  z-index: 50;
+  display: flex;
+  gap: 10px;
+}
+
+.storm-chip {
+  background: rgba(255,107,53,0.15);
+  border: 1px solid rgba(255,107,53,0.35);
+  border-radius: 10px;
+  padding: 10px 16px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  transition: all .2s;
+  flex: 1;
+}
+
+.storm-chip:hover {
+  background: rgba(255,107,53,0.25);
+}
+
+.storm-chip.warn {
+  background: rgba(255,209,102,0.1);
+  border-color: rgba(255,209,102,0.3);
+}
+
+.storm-chip.watch {
+  background: rgba(100,180,255,0.08);
+  border-color: rgba(100,180,255,0.25);
+}
+
+.chip-icon {
+  font-size: 1.1rem;
+  flex-shrink: 0;
+}
+
+.chip-content {
+  min-width: 0;
+}
+
+.chip-title {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--storm);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.storm-chip.warn .chip-title {
+  color: var(--gold);
+}
+
+.storm-chip.watch .chip-title {
+  color: #64a8e0;
+}
+
+.chip-loc {
+  font-size: 0.65rem;
+  color: var(--muted);
+  margin-top: 1px;
+}
