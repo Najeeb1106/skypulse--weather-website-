@@ -9,7 +9,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
  * Ensure your backend server is listening on 0.0.0.0 or your local IP.
  */
 const apiClient = axios.create({
-  baseURL: 'http://192.168.1.8:5000/api', // Updated to your machine's local IP
+  baseURL: 'http://192.168.1.9:5000/api', // Use local IP for speed, OAuth uses tunnel
   timeout: 10000,
 });
 
